@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>얼굴 찾기</title>
+    <style>
+        /* 전체 배경과 글꼴 */
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #0d0d0d, #1a1a1a);
+            color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url('https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+            text-shadow: 1px 1px 3px black;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 50px;
+            color: #ffd700;
+            text-shadow: 2px 2px 5px black;
+        }
+
+        /* 파일 입력과 버튼 컨테이너 */
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(0,0,0,0.6);
+            padding: 30px 50px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #ffcc00, #ff9900);
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.8);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 204, 0, 1);
+        }
+
+        /* 결과 표시 영역 스타일 */
+        #result-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(26, 26, 26, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            max-width: 600px;
+            width: 90%;
+            text-align: left;
+            display: none; /* 초기에는 숨겨둡니다 */
+        }
+        
+        #result-container h2 {
+            text-align: center;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+        
+        .celebrity-card {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #ff9900;
+        }
+        
+        .celebrity-card p {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+
+        .celebrity-card a {
+            color: #ffd700;
+            text-decoration: none;
+        }
+
+        .celebrity-card a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>얼굴 찾기</h1>
+    <form id="uploadForm" action="/find_celeb_face" method="post" enctype="multipart/form-data">
+        <input type="file" name="file1" accept="image/*" required>
+        <button type="submit">인식</button>
+    </form>
+
+    <div id="result-container">
+        <h2>인식 결과</h2>
+        <div id="celebrity-info">
+            </div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const resultContainer = document.getElementById('result-container');
+        const celebrityInfo = document.getElementById('celebrity-info');
+
+        uploadForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // 기본 폼 제출 동작을 막습니다.
+
+            const formData = new FormData(this);
+
+            // 로딩 상태 표시
+            celebrityInfo.innerHTML = '<p style="text-align:center;">인식 중입니다. 잠시만 기다려주세요...</p>';
+            resultContainer.style.display = 'block';
+
+            fetch('/find_celeb_face', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 결과에 따라 UI 업데이트
+                if (data.result === 'success') {
+                    if (data.celebrities && data.celebrities.length > 0) {
+                        celebrityInfo.innerHTML = ''; // 기존 내용 삭제
+                        data.celebrities.forEach(celeb => {
+                            const card = document.createElement('div');
+                            card.className = 'celebrity-card';
+                            
+                            let htmlContent = `<p><strong>이름:</strong> ${celeb.name}</p>`;
+                            htmlContent += `<p><strong>성별:</strong> ${celeb.gender}</p>`;
+                            
+                            if (celeb.urls && celeb.urls.length > 0) {
+                                htmlContent += `<p><strong>관련 정보:</strong></p>`;
+                                htmlContent += '<ul>';
+                                celeb.urls.forEach(url => {
+                                    htmlContent += `<li><a href="${url}" target="_blank">${url}</a></li>`;
+                                });
+                                htmlContent += '</ul>';
+                            }
+                            
+                            card.innerHTML = htmlContent;
+                            celebrityInfo.appendChild(card);
+                        });
+                    } else {
+                        celebrityInfo.innerHTML = '<p style="text-align:center;">사진에서 유명인을 찾을 수 없습니다.</p>';
+                    }
+                } else {
+                    celebrityInfo.innerHTML = `<p style="text-align:center;">오류: ${data.error}</p>`;
+                }
+            })
+            .catch(error => {
+                celebrityInfo.innerHTML = `<p style="text-align:center;">오류가 발생했습니다: ${error.message}</p>`;
+            });
+        });
+    </script>
+</body>
+</html>
