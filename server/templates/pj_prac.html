@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영화 사이트</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(180deg, #0d0d1a, #050509);
+            color: #e0e0e0;
+            margin: 0;
+        }
+        h1 {
+            font-size: 48px;
+            margin-top: 60px;
+            color: #d4af37; /* 톤 다운된 골드 */
+            text-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+        }
+        .button-container {
+            margin-top: 60px;
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+        }
+        .btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #d4af37;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .icon-box {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #d4af37;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+            transition: all 0.3s ease;
+        }
+        .icon-box img {
+            width: 80px;
+            height: 80px;
+        }
+        .btn:hover .icon-box {
+            background-color: #d4af37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+        }
+        .btn:hover span {
+            color: white;
+        }
+        .btn span {
+            margin-top: 15px;
+        }
+        /* 정보 표시 카드 */
+        .info-section {
+            margin: 60px auto;
+            background-color: #1a1a1a;
+            max-width: 800px;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: left;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .info-section h2 {
+            color: #f0f0f0;
+            margin-bottom: 15px;
+        }
+        .info-section p {
+            color: #cccccc;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <h1>My Cinema</h1>
+    <div class="button-container">
+        <a href="배우찾기.html" class="btn">
+            <div class="icon-box">
+                <img src="/find_face.png">
+            </div>
+            <span>얼굴 찾기</span>
+        </a>
+        <a href="영화추천.html" class="btn">
+            <div class="icon-box">
+                <img src="/find_movie.png" alt="영화 찾기 아이콘">
+            </div>
+            <span>영화 추천</span>
+        </a>
+    </div>
+
+    <!-- 정보 표시 영역 -->
+    <div class="info-section">
+        <h2 align = "center">서비스 소개</h2>
+        <p>
+            My Cinema는 얼굴 인식과 영화 추천 기능을 통해 맞춤형 영화 경험을 제공합니다.
+            원하는 배우를 찾아보고, 취향에 맞는 영화를 추천받을 수 있습니다.
+            간단한 클릭만으로 다양한 영화 정보를 빠르게 확인하세요.
+        </p>
+    </div>
+</body>
+</html>
