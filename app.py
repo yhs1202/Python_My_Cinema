@@ -1,23 +1,18 @@
 
+# -*- coding: utf-8 -*-
 ## 2) app.py (업데이트: /filmography_by_name 추가, DataFrame 로직 반영)
 
 import os
-from flask import Flask, render_template, request, jsonify
 import boto3
 import requests
 import pandas as pd
 
-# -*- coding: utf-8 -*-
-from flask import Flask             # route 경로, run 서버 실행
-from flask import render_template   # html load
-from flask import request           # 사용자가 보낸 정보
+from flask import Flask, render_template, request, jsonify
 from flask import redirect          # 페이지 이동
 from flask import make_response     # 페이지 이동 시 정보 유지
-from flask import jsonify
 
 from aws import recognize_celebrities
 from werkzeug.utils import secure_filename
-import os
 
 # Ensure the static directory exists
 if not os.path.exists("static"):
