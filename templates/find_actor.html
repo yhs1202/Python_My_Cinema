@@ -86,25 +86,45 @@
             margin-bottom: 20px;
         }
         
+        /* 이미지와 텍스트를 함께 보여주기 위한 flexbox */
         .celebrity-card {
             background-color: rgba(0, 0, 0, 0.5);
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 15px;
             border-left: 5px solid #ff9900;
+            display: flex;
+            align-items: flex-start; /* 텍스트를 위에서부터 정렬 */
+            gap: 15px;
         }
         
-        .celebrity-card p {
+        .celebrity-card img {
+            max-width: 100px;
+            height: auto;
+            border-radius: 5px;
+            flex-shrink: 0; /* 이미지가 줄어들지 않도록 */
+        }
+
+        .celebrity-card .info-text {
+            flex-grow: 1; /* 텍스트 영역이 남은 공간을 차지하도록 */
+        }
+        
+        .celebrity-card .info-text p {
             margin: 5px 0;
             font-size: 1.1em;
         }
+        
+        .celebrity-card .info-text ul {
+            margin: 5px 0 0 0;
+            padding-left: 20px;
+        }
 
-        .celebrity-card a {
+        .celebrity-card .info-text a {
             color: #ffd700;
             text-decoration: none;
         }
 
-        .celebrity-card a:hover {
+        .celebrity-card .info-text a:hover {
             text-decoration: underline;
         }
     </style>
@@ -140,7 +160,12 @@
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('네트워크 응답이 올바르지 않습니다.');
+                }
+                return response.json();
+            })
             .then(data => {
                 // 결과에 따라 UI 업데이트
                 if (data.result === 'success') {
@@ -149,20 +174,33 @@
                         data.celebrities.forEach(celeb => {
                             const card = document.createElement('div');
                             card.className = 'celebrity-card';
-                            
-                            let htmlContent = `<p><strong>이름:</strong> ${celeb.name}</p>`;
-                            htmlContent += `<p><strong>성별:</strong> ${celeb.gender}</p>`;
-                            
-                            if (celeb.urls && celeb.urls.length > 0) {
-                                htmlContent += `<p><strong>관련 정보:</strong></p>`;
-                                htmlContent += '<ul>';
-                                celeb.urls.forEach(url => {
-                                    htmlContent += `<li><a href="${url}" target="_blank">${url}</a></li>`;
-                                });
-                                htmlContent += '</ul>';
+
+                            // 이미지와 정보가 함께 들어갈 HTML 구성
+                            let imageHtml = '';
+                            if (celeb.image_url) {
+                                imageHtml = `<img src="${celeb.image_url}" alt="${celeb.name} 이미지">`;
+                            } else {
+                                // 이미지가 없을 경우 대체 이미지나 아이콘을 표시
+                                imageHtml = `<img src="https://via.placeholder.com/100x100?text=No+Image" alt="이미지 없음">`;
                             }
                             
-                            card.innerHTML = htmlContent;
+                            let infoHtml = `<div class="info-text">`;
+                            infoHtml += `<p><strong>이름:</strong> ${celeb.name}</p>`;
+                            infoHtml += `<p><strong>성별:</strong> ${celeb.gender}</p>`;
+                            
+                            // 관련 URL 정보
+                            if (celeb.urls && celeb.urls.length > 0) {
+                                infoHtml += `<p><strong>관련 정보:</strong></p>`;
+                                infoHtml += '<ul>';
+                                celeb.urls.forEach(url => {
+                                    infoHtml += `<li><a href="${url}" target="_blank">${url}</a></li>`;
+                                });
+                                infoHtml += '</ul>';
+                            }
+                            
+                            infoHtml += `</div>`;
+                            
+                            card.innerHTML = imageHtml + infoHtml;
                             celebrityInfo.appendChild(card);
                         });
                     } else {
