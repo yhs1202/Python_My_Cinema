@@ -1,4 +1,4 @@
-<<<<<<< HEAD:project.py
+
 ## 2) app.py (업데이트: /filmography_by_name 추가, DataFrame 로직 반영)
 
 import os
@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, jsonify
 import boto3
 import requests
 import pandas as pd
-=======
+
 # -*- coding: utf-8 -*-
 from flask import Flask             # route 경로, run 서버 실행
 from flask import render_template   # html load
@@ -22,20 +22,17 @@ import os
 # Ensure the static directory exists
 if not os.path.exists("static"):
     os.mkdir("static")
->>>>>>> 74219b08c0ecf3138dd9d697eafb3b519b76f56b:app.py
 
 TMDB_API_KEY = os.getenv("TMDB_API_KEY", "<YOUR_TMDB_API_KEY>")
 AWS_REGION = os.getenv("AWS_REGION", "ap-northeast-2")
 
-<<<<<<< HEAD:project.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"))
-=======
+
 # root page
 @app.route("/")
 def index():
     return render_template("pj_prac.html")
->>>>>>> 74219b08c0ecf3138dd9d697eafb3b519b76f56b:app.py
 
 # AWS 자격증명은 표준 방식으로 설정되어 있어야 합니다.
 rekognition = boto3.client("rekognition", region_name=AWS_REGION)
@@ -62,7 +59,6 @@ def tmdb_combined_credits(person_id: int):
     data = tmdb_get(f"/person/{person_id}/combined_credits")
     return data.get("cast", [])
 
-<<<<<<< HEAD:project.py
 # 출연유형 간이 규칙
 
 def role_type_from_order(order):
@@ -123,7 +119,3 @@ def build_tables_from_cast(cast):
         return rows
 
     return to_rows(movies.head(50)), to_rows(tvs.head(50))
-=======
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
->>>>>>> 74219b08c0ecf3138dd9d697eafb3b519b76f56b:app.py
