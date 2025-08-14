@@ -1,6 +1,6 @@
 import requests
 import random
-
+#
 # ======== 1. 장르 한글 ↔ ID 매핑 ========
 genre_dict = {
     "28": "액션",
