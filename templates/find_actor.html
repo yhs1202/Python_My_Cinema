@@ -74,7 +74,7 @@
             background-color: rgba(26, 26, 26, 0.8);
             border-radius: 15px;
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-            max-width: 600px;
+            max-width: 800px; /* 너비 확장 */
             width: 90%;
             text-align: left;
             display: none;
@@ -86,7 +86,6 @@
             margin-bottom: 20px;
         }
         
-        /* 이미지와 텍스트를 함께 보여주기 위한 flexbox */
         .celebrity-card {
             background-color: rgba(0, 0, 0, 0.5);
             padding: 15px;
@@ -94,40 +93,91 @@
             margin-bottom: 15px;
             border-left: 5px solid #ff9900;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
+            gap: 20px;
         }
         
         .celebrity-card img {
-            max-width: 90%;
+            max-width: 150px;
             height: auto;
             border-radius: 5px;
-            margin-bottom: 15px;
+            flex-shrink: 0;
         }
 
-        .celebrity-card .info-text {
+        .celebrity-card .content-wrapper {
+            display: flex;
+            flex-direction: row; /* 인물 정보와 뉴스 섹션을 가로로 나란히 */
+            gap: 20px;
             width: 100%;
-            padding: 0 10px;
+        }
+
+        .celebrity-card .info-section {
+            flex: 1; /* 남은 공간을 채우도록 */
         }
         
-        .celebrity-card .info-text p {
+        .celebrity-card .info-section p {
             margin: 5px 0;
             font-size: 1.1em;
         }
         
-        .celebrity-card .info-text ul {
-            margin: 5px 0 0 0;
-            padding-left: 20px;
+        .celebrity-card .news-section {
+            flex: 1;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
         }
-
-        .celebrity-card .info-text a {
+        
+        .news-section h4 {
             color: #ffd700;
-            text-decoration: none;
-            word-break: break-all;
+            margin: 0 0 10px 0;
+            border-bottom: 1px solid #ffd700;
+            padding-bottom: 5px;
+        }
+        
+        .news-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .news-section li {
+            margin-bottom: 8px;
         }
 
-        .celebrity-card .info-text a:hover {
-            text-decoration: underline;
+        .news-section li a {
+            display: block;
+            color: #f5f5f5;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .news-section li a:hover {
+            color: #ffd700;
+        }
+
+        .news-section .news-title {
+            font-weight: bold;
+        }
+
+        .news-section .news-source {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        
+        /* 모바일 환경 대응 */
+        @media (max-width: 768px) {
+            .celebrity-card {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .celebrity-card .content-wrapper {
+                flex-direction: column;
+            }
+
+            .celebrity-card img {
+                max-width: 90%;
+            }
         }
     </style>
 </head>
@@ -182,7 +232,11 @@
                                 imageHtml = `<img src="https://via.placeholder.com/200x200?text=No+Image" alt="이미지 없음">`;
                             }
                             
-                            let infoHtml = `<div class="info-text">`;
+                            // content-wrapper를 인물 정보와 뉴스 섹션으로 구성
+                            let contentWrapperHtml = `<div class="content-wrapper">`;
+                            
+                            // 인물 정보 섹션
+                            let infoHtml = `<div class="info-section">`;
                             infoHtml += `<p><strong>이름:</strong> ${celeb.name}</p>`;
                             infoHtml += `<p><strong>성별:</strong> ${celeb.gender}</p>`;
                             
@@ -190,16 +244,39 @@
                                 infoHtml += `<p><strong>관련 정보:</strong></p>`;
                                 infoHtml += '<ul>';
                                 celeb.urls.forEach(url => {
-                                    // URL이 http 또는 https로 시작하지 않으면 앞에 http://를 추가합니다.
                                     const fullUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `http://${url}`;
                                     infoHtml += `<li><a href="${fullUrl}" target="_blank">${url}</a></li>`;
                                 });
                                 infoHtml += '</ul>';
                             }
-                            
                             infoHtml += `</div>`;
                             
-                            card.innerHTML = imageHtml + infoHtml;
+                            // 뉴스 섹션
+                            let newsHtml = ``;
+                            if (celeb.news && celeb.news.length > 0) {
+                                newsHtml += `<div class="news-section">`;
+                                newsHtml += `<h4>최신 뉴스</h4>`;
+                                newsHtml += '<ul>';
+                                celeb.news.forEach(newsArticle => {
+                                    newsHtml += `<li><a href="${newsArticle.url}" target="_blank">`;
+                                    newsHtml += `<span class="news-title">${newsArticle.title}</span><br>`;
+                                    newsHtml += `<span class="news-source">출처: ${newsArticle.source}</span>`;
+                                    newsHtml += `</a></li>`;
+                                });
+                                newsHtml += '</ul>';
+                                newsHtml += `</div>`;
+                            } else {
+                                newsHtml += `<div class="news-section">`;
+                                newsHtml += `<h4>최신 뉴스</h4>`;
+                                newsHtml += `<p>최신 뉴스 정보를 찾을 수 없습니다.</p>`;
+                                newsHtml += `</div>`;
+                            }
+                            
+                            contentWrapperHtml += infoHtml;
+                            contentWrapperHtml += newsHtml;
+                            contentWrapperHtml += `</div>`;
+                            
+                            card.innerHTML = imageHtml + contentWrapperHtml;
                             celebrityInfo.appendChild(card);
                         });
                     } else {
