@@ -29,6 +29,31 @@ app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"))
 def index():
     return render_template("pj_prac.html")
 
+# find_actor 페이지
+@app.route("/find_actor")
+def find_actor():
+    return render_template("find_actor.html")
+
+# 얼굴 인식 POST 요청 처리
+@app.route("/find_celeb_face", methods=["POST"])
+def process_celeb_face():
+    if "file1" not in request.files:
+        return jsonify({"error": "파일이 없습니다."}), 400
+
+    file1 = request.files["file1"]
+    if file1.filename == "":
+        return jsonify({"error": "파일 이름이 없습니다."}), 400
+
+    file1_filename = secure_filename(file1.filename)
+    save_path = os.path.join("static", file1_filename)
+    file1.save(save_path)
+
+    # AWS 얼굴 인식 함수 호출
+    celeb_info = recognize_celebrities(save_path)
+    
+    # 결과를 JSON 형태로 반환합니다.
+    return jsonify(celeb_info)
+
 # AWS 자격증명은 표준 방식으로 설정되어 있어야 합니다.
 rekognition = boto3.client("rekognition", region_name=AWS_REGION)
 BASE = "https://api.themoviedb.org/3"
