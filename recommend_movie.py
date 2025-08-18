@@ -11,12 +11,12 @@ genre_dict = {
     "10402": "음악", "9648": "미스터리"
 }
 
-# 한글 → ID 변환
-def get_genre_id_by_name(korean_name):
-    for id_, name in genre_dict.items():
-        if name == korean_name:
-            return id_
-    return None
+# # 한글 → ID 변환
+# def get_genre_id_by_name(korean_name):
+#     for id_, name in genre_dict.items():
+#         if name == korean_name:
+#             return id_
+#     return None
 
 
 def get_movies(api_key, country='ko', runtime_type=None, count=10, genre_id=None):
@@ -33,7 +33,9 @@ def get_movies(api_key, country='ko', runtime_type=None, count=10, genre_id=None
     url = "https://api.themoviedb.org/3/discover/movie"
     all_movies = []
 
-    for page_num in range(1, 2):    # page
+    #### Modify page range here ####
+    page_range = 5
+    for page_num in range(1, page_range + 1):    
         params = {
             "api_key": api_key,
             "with_original_language": country,  # 국가 코드로 필터링
@@ -47,7 +49,6 @@ def get_movies(api_key, country='ko', runtime_type=None, count=10, genre_id=None
             "certification_country": "KR",  # 한국 등급 필터링
             "certification.lte": "15"  # 한국 19금 제외 (ALL/12/15까지만)
         }
-
         try:
             response = requests.get(url, params=params)
             response.raise_for_status()
