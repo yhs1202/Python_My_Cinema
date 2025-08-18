@@ -1,72 +1,72 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>얼굴 찾기</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(to bottom, #0d0d0d, #1a1a1a);
-      color: #f5f5f5;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      background-image: url('https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=1470&q=80');
-      background-size: cover;
-      background-position: center;
-      text-shadow: 1px 1px 3px black;
-      padding: 40px 20px;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <title>얼굴 찾기</title>
+    <style>
+        /* 전체 배경과 글꼴 */
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #0d0d0d, #1a1a1a);
+            color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url('https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+            text-shadow: 1px 1px 3px black;
+        }
 
-    h1 {
-      font-size: 3em;
-      margin: 10px 0 24px;
-      color: #ffd700;
-      text-shadow: 2px 2px 5px black;
-    }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 50px;
+            color: #ffd700;
+            text-shadow: 2px 2px 5px black;
+        }
 
-    form {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: rgba(0,0,0,0.6);
-      padding: 20px 28px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
-    }
+        /* 파일 입력과 버튼 컨테이너 */
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(0,0,0,0.6);
+            padding: 30px 50px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+        }
 
-    input[type="file"] {
-      margin-bottom: 14px;
-      padding: 10px;
-      border-radius: 5px;
-      border: none;
-      background-color: #333;
-      color: #fff;
-      cursor: pointer;
-    }
+        input[type="file"] {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
 
-    button {
-      padding: 10px 20px;
-      font-size: 1.05em;
-      border: none;
-      border-radius: 8px;
-      background: linear-gradient(45deg, #ffcc00, #ff9900);
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 0 15px rgba(255, 204, 0, 0.8);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
+        button {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #ffcc00, #ff9900);
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.8);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-    button:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 25px rgba(255, 204, 0, 1);
-    }
-    
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 204, 0, 1);
+        }
+
         /* 결과 표시 영역 스타일 */
         #result-container {
             margin-top: 30px;
@@ -180,84 +180,29 @@
             }
         }
     </style>
->>>>>>> 74219b08c0ecf3138dd9d697eafb3b519b76f56b
 </head>
 <body>
-  <h1>얼굴 찾기</h1>
-  <form id="uploadForm" action="/find_celeb_face" method="post" enctype="multipart/form-data">
-    <input type="file" name="file1" accept="image/*" required />
-    <button type="submit">인식</button>
-  </form>
+    <h1>얼굴 찾기</h1>
+    <form id="uploadForm" action="/find_celeb_face" method="post" enctype="multipart/form-data">
+        <input type="file" name="file1" accept="image/*" required>
+        <button type="submit">인식</button>
+    </form>
 
-  <div id="result-container">
-    <h2>인식 결과</h2>
-    <div id="celebrity-info"></div>
-
-    <div class="meta" id="meta"></div>
-
-    <div class="grid-two">
-      <div class="table-card">
-        <h3>영화</h3>
-        <table id="movies-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>제목</th>
-              <th>연도</th>
-              <th>역할</th>
-              <th>출연유형</th>
-              <th>평점</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div class="table-card">
-        <h3>TV 프로그램</h3>
-        <table id="tvs-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>제목</th>
-              <th>연도</th>
-              <th>역할</th>
-              <th>출연유형</th>
-              <th>평점</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+    <div id="result-container">
+        <h2>인식 결과</h2>
+        <div id="celebrity-info">
+            </div>
     </div>
-  </div>
 
-  <script>
-    const uploadForm = document.getElementById('uploadForm');
-    const resultContainer = document.getElementById('result-container');
-    const celebrityInfo = document.getElementById('celebrity-info');
-    const meta = document.getElementById('meta');
-
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const resultContainer = document.getElementById('result-container');
+        const celebrityInfo = document.getElementById('celebrity-info');
 
         uploadForm.addEventListener('submit', function(event) {
             event.preventDefault();
 
-
-    function renderTable(tbody, rows) {
-      tbody.innerHTML = '';
-      rows.forEach((r, idx) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${idx + 1}</td>
-          <td>${r.title}</td>
-          <td>${r.year || ''}</td>
-          <td>${r.character || ''}</td>
-          <td>${r.role_type || ''}</td>
-          <td>${(r.vote_average ?? '').toString()}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+            const formData = new FormData(this);
 
             celebrityInfo.innerHTML = '<p style="text-align:center;">인식 중입니다. 잠시만 기다려주세요...</p>';
             resultContainer.style.display = 'block';
@@ -346,6 +291,5 @@
             });
         });
     </script>
->>>>>>> 74219b08c0ecf3138dd9d697eafb3b519b76f56b
 </body>
 </html>
