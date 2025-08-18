@@ -114,3 +114,6 @@ def build_tables_from_cast(cast):
         return rows
 
     return to_rows(movies.head(50)), to_rows(tvs.head(50))
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000, debug=True)
