@@ -24,6 +24,7 @@ from werkzeug.utils import secure_filename
 from aws import recognize_celebrities
 # 새로 만든 tmdb_person_external_ids 함수를 import 목록에 추가합니다.
 from tmdb_helpers import tmdb_search_person_id, tmdb_person_details, tmdb_person_external_ids
+from tmdb_helpers import *
 
 if not os.path.exists("static"):
     os.mkdir("static")
