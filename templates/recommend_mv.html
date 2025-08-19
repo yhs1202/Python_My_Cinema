@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>영화 취향 조사 및 추천</title>
+    <title>추천 영화 목록</title>
     <style>
         body {
             background: #121212;
@@ -15,13 +15,7 @@
             text-align: center;
             margin-bottom: 0.5em;
         }
-        form {
-            background: #222;
-            padding: 2em;
-            border-radius: 12px;
-            max-width: 600px;
-            margin: 0 auto 3em auto;
-        }
+
         fieldset {
             border: none;
             margin-bottom: 1.8em;
@@ -40,102 +34,12 @@
             user-select: none;
         }
 
-        /* 체크박스 숨기기 */
-        input[type="checkbox"] {
-            display: none;
-        }
-        /* 체크박스용 커스텀 버튼 스타일 */
-        label.checkbox-custom {
-            display: inline-block;
-            background-color: #1DB954;
-            color: #121212;
-            padding: 12px 25px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 1em;
-            box-shadow: 0 4px 8px rgba(29, 185, 84, 0.6);
-            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-            user-select: none;
-        }
-        /* 체크박스 선택 시 색상 반전 */
-        input[type="checkbox"]:checked + label.checkbox-custom {
-            background-color: #121212;
-            color: #1DB954;
-            box-shadow: 0 6px 12px rgba(29, 185, 84, 0.9);
-        }
-        label.checkbox-custom:hover {
-            background-color: #27ae60;
-            color: #121212;
-            box-shadow: 0 6px 12px rgba(39, 174, 96, 0.8);
-        }
-
-        /* 라디오 버튼 숨기기 */
-        input[type="radio"] {
-            display: none;
-        }
-        /* 라디오 버튼용 커스텀 버튼 스타일 */
-        label.radio-custom {
-            display: inline-block;
-            background-color: #1DB954;
-            color: #121212;
-            padding: 12px 25px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 1em;
-            box-shadow: 0 4px 8px rgba(29, 185, 84, 0.6);
-            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            user-select: none;
-        }
-        /* 라디오 선택 시 색상 반전 */
-        input[type="radio"]:checked + label.radio-custom {
-            background-color: #121212;
-            color: #1DB954;
-            box-shadow: 0 6px 12px rgba(29, 185, 84, 0.9);
-        }
-        label.radio-custom:hover {
-            background-color: #27ae60;
-            color: #121212;
-            box-shadow: 0 6px 12px rgba(39, 174, 96, 0.8);
-        }
-
-        select, input[type="number"] {
-            background: #121212;
-            border: 1.5px solid #1DB954;
-            border-radius: 6px;
-            color: #eee;
-            padding: 0.3em 0.6em;
-            font-size: 1em;
-            min-width: 150px;
-            margin-top: 0.1em;
-        }
-        input[type="number"] {
-            width: 80px;
-        }
-        button {
-            display: block;
-            background: linear-gradient(135deg, #1DB954 0%, #27ae60 100%);
-            color: #121212;
-            border: none;
-            border-radius: 8px;
-            padding: 0.85em 3em;
-            font-size: 1.3em;
-            font-weight: bold;
-            margin: 1.5em auto 0 auto;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(29, 185, 84, 0.6);
-            transition: background 0.3s ease, box-shadow 0.3s ease;
-        }
-        button:hover {
-            background: linear-gradient(135deg, #27ae60 0%, #1DB954 100%);
-            box-shadow: 0 6px 16px rgba(39, 174, 96, 0.8);
-        }
         /* 카드형 그리드 적용 */
         .cards {
             display: grid;
             grid-template-columns: repeat(3, 1fr);  /* 3열 */
             grid-gap: 1.5em;                        /* 칸 간격 */
-            max-width: 1040px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         
@@ -144,10 +48,11 @@
             color: #eee;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(29, 185, 84, 0.2);
-            padding: 2.5em 1em;
+            padding: 3em 2em;
             text-align: center;
             transition: box-shadow 0.2s;
-            width: 220px;
+            width: 260px;
+            font-size: 1.15em;
         }
 
         .movie_card:hover {
@@ -162,128 +67,21 @@
         }
 
         .movie_card img.movie_poster {
-            width: 160px;
-            height: 240px;
+            width: 180px;
+            height: 270px;
             object-fit: cover;
             border-radius: 6px;
-            margin-bottom: 1em;
+            margin-bottom: 1.2em;
             box-shadow: 0 2px 8px rgba(29, 185, 84, 0.15);
             background: #222;
         }
     </style>
 </head>
 <body>
-    <h1>영화 취향 조사</h1>
-    <form method="POST" action="/recommend_mv">
-        <!-- 1단계: 장르 선택 (중복 선택 가능) -->
-        <fieldset>
-            <legend>1. 좋아하는 영화 장르를 선택해주세요 (복수 선택 가능)</legend>
-
-            <input type="checkbox" id="genre28" name="genres" value="28">
-            <label for="genre28" class="checkbox-custom">액션</label>
-
-            <input type="checkbox" id="genre12" name="genres" value="12">
-            <label for="genre12" class="checkbox-custom">모험</label>
-
-            <input type="checkbox" id="genre16" name="genres" value="16">
-            <label for="genre16" class="checkbox-custom">애니메이션</label>
-
-            <input type="checkbox" id="genre35" name="genres" value="35">
-            <label for="genre35" class="checkbox-custom">코미디</label>
-
-            <input type="checkbox" id="genre80" name="genres" value="80">
-            <label for="genre80" class="checkbox-custom">범죄</label>
-
-            <input type="checkbox" id="genre99" name="genres" value="99">
-            <label for="genre99" class="checkbox-custom">다큐멘터리</label>
-
-            <input type="checkbox" id="genre18" name="genres" value="18">
-            <label for="genre18" class="checkbox-custom">드라마</label>
-
-            <input type="checkbox" id="genre10751" name="genres" value="10751">
-            <label for="genre10751" class="checkbox-custom">가족</label>
-
-            <input type="checkbox" id="genre14" name="genres" value="14">
-            <label for="genre14" class="checkbox-custom">판타지</label>
-
-            <input type="checkbox" id="genre27" name="genres" value="27">
-            <label for="genre27" class="checkbox-custom">공포</label>
-
-            <input type="checkbox" id="genre10749" name="genres" value="10749">
-            <label for="genre10749" class="checkbox-custom">로맨스</label>
-
-            <input type="checkbox" id="genre878" name="genres" value="878">
-            <label for="genre878" class="checkbox-custom">SF</label>
-
-            <input type="checkbox" id="genre53" name="genres" value="53">
-            <label for="genre53" class="checkbox-custom">스릴러</label>
-        </fieldset>
-
-        <!-- x단계: 성인 영화 추천 여부
-        <fieldset>
-            <legend>2. 성인 영화 추천을 원하시나요?</legend>
-
-            <input type="radio" id="adult_yes" name="adult" value="true" required>
-            <label for="adult_yes" class="radio-custom">예</label>
-
-            <input type="radio" id="adult_no" name="adult" value="false">
-            <label for="adult_no" class="radio-custom">아니오</label>
-        </fieldset> -->
-
-        <!-- 2단계: 러닝 타임 선택 -->
-        <fieldset>
-            <legend>2. 원하는 러닝타임을 선택해주세요</legend>
-
-            <input type="radio" id="runtime_1" name="runtime" value="1" required>
-            <label for="runtime_1" class="radio-custom">1~2시간</label>
-
-            <input type="radio" id="runtime_2" name="runtime" value="2">
-            <label for="runtime_2" class="radio-custom">2~3시간</label>
-
-            <input type="radio" id="runtime_3" name="runtime" value="3">
-            <label for="runtime_3" class="radio-custom">3시간 이상</label>
-        </fieldset>
-
-        <!-- 추가 옵션: 평점 최소값 -->
-        <fieldset>
-            <legend>3. 평점 (10점 만점) 최소값을 입력해주세요</legend>
-            <input type="number" name="min_rating" min="0" max="10" step="0.1" value="7" required>
-        </fieldset>
-
-        <!-- 추가 옵션: 선호하는 영화 언어 (복수 선택 가능) -->
-        <fieldset>
-            <legend>4. 선호하는 영화 언어를 선택해주세요 (복수 선택 가능)</legend>
-
-            <input type="checkbox" id="lang_ko" name="languages" value="ko">
-            <label for="lang_ko" class="checkbox-custom">한국어</label>
-
-            <input type="checkbox" id="lang_en" name="languages" value="en">
-            <label for="lang_en" class="checkbox-custom">영어</label>
-
-            <input type="checkbox" id="lang_ja" name="languages" value="ja">
-            <label for="lang_ja" class="checkbox-custom">일본어</label>
-        </fieldset>
-
-        <button type="submit">추천 받기</button>
-    </form>
-
-    <!-- 결과 확인 영역-->
-    {% if genres %}
-    <div class="result-area">
-        <h2>선택한 결과</h2>
-        <ul>
-            <li>선택 장르   : {{genres | join(', ') }}</li>
-            <li>러닝 타임   : {{runtime}}</li>
-            <li>평점 최솟값  : {{min_rating}}</li>
-            <li>선호 언어   : {{languages | join(', ') }}</li>           
-        </ul>
-    </div>
-    {% endif %}
-    
+    <h1>당신이 원하는 영화 이곳에</h1>
     <!-- 추천 받기 눌렀을 때 카드형으로 결과 출력-->
     {% if movies %}
         <div class="card_wrapper">
-            <h2>추천 영화 목록</h2>
             <div class="cards">
                 {% for movie in movies %}
                     <div class="movie_card">
