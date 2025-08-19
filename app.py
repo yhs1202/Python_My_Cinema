@@ -1,5 +1,5 @@
-
 # -*- coding: utf-8 -*-
+<<<<<<< HEAD
 ## 2) app.py (업데이트: /filmography_by_name 추가, DataFrame 로직 반영)
 
 # 임포트 & 기본 세팅
@@ -20,36 +20,40 @@ from flask import make_response     # 페이지 이동 시 정보 유지
 from aws import recognize_celebrities
 # from flask import redirect 다른 URL로 페이지 이동시킬 때 사용
 
+=======
+import os
+from flask import Flask, render_template, request, jsonify
+>>>>>>> bbea508fe57e85cc63cd5bb969eb96fd38878885
 from werkzeug.utils import secure_filename
 
-# Ensure the static directory exists
+from aws import recognize_celebrities
+# 새로 만든 tmdb_person_external_ids 함수를 import 목록에 추가합니다.
+from tmdb_helpers import tmdb_search_person_id, tmdb_person_details, tmdb_person_external_ids
+
 if not os.path.exists("static"):
     os.mkdir("static")
-
-TMDB_API_KEY = os.getenv("TMDB_API_KEY", "<YOUR_TMDB_API_KEY>")
-AWS_REGION = os.getenv("AWS_REGION", "ap-northeast-2")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"))
 
-# root page
 @app.route("/")
 def index():
     return render_template("pj_prac.html")
 
-# AWS 자격증명은 표준 방식으로 설정되어 있어야 합니다.
-rekognition = boto3.client("rekognition", region_name=AWS_REGION)
-BASE = "https://api.themoviedb.org/3"
+@app.route("/find_actor")
+def find_actor():
+    return render_template("find_actor.html")
 
-# ---------------- TMDB helpers ----------------
+@app.route("/find_celeb_face", methods=["POST"])
+def process_celeb_face():
+    if "file1" not in request.files:
+        return jsonify({"error": "파일이 없습니다."}), 400
 
-def tmdb_get(path, **params):
-    params.setdefault("api_key", TMDB_API_KEY)
-    params.setdefault("language", "ko-KR")
-    r = requests.get(f"{BASE}{path}", params=params, timeout=10)
-    r.raise_for_status()
-    return r.json()
+    file1 = request.files["file1"]
+    if file1.filename == "":
+        return jsonify({"error": "파일 이름이 없습니다."}), 400
 
+<<<<<<< HEAD
 #공통 GET함수. 기본적으로 헌국어와 API 키를 붙여 호출
 
 def tmdb_search_person_id(name: str):
@@ -130,3 +134,48 @@ def build_tables_from_cast(cast): #필모그래피 -> 표 데이터만들기, TM
         return rows
 
     return to_rows(movies.head(50)), to_rows(tvs.head(50))
+=======
+    file1_filename = secure_filename(file1.filename)
+    save_path = os.path.join("static", file1_filename)
+    file1.save(save_path)
+
+    celeb_info_from_aws = recognize_celebrities(save_path)
+    
+    if celeb_info_from_aws.get("result") != "success":
+        return jsonify(celeb_info_from_aws)
+
+    celebrities_with_details = []
+    for celeb in celeb_info_from_aws.get("celebrities", []):
+        person_id, _ = tmdb_search_person_id(celeb['name'])
+        
+        if person_id:
+            details = tmdb_person_details(person_id)
+            # ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+            # 소셜 미디어 ID를 가져오는 로직을 추가합니다.
+            external_ids = tmdb_person_external_ids(person_id)
+            # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+            
+            celeb['birthday'] = details.get('birthday', '정보 없음')
+            celeb['place_of_birth'] = details.get('place_of_birth', '정보 없음')
+            celeb['known_for_department'] = details.get('known_for_department', '정보 없음')
+            celeb['biography'] = details.get('biography', '')
+            # ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+            # 가져온 소셜 미디어 ID를 결과에 추가합니다.
+            celeb['external_ids'] = external_ids
+            # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+        else:
+            celeb['birthday'] = '정보 없음'
+            celeb['place_of_birth'] = '정보 없음'
+            celeb['known_for_department'] = '정보 없음'
+            celeb['biography'] = ''
+            celeb['external_ids'] = {} # ID가 없을 경우 빈 딕셔너리 전달
+            
+        celebrities_with_details.append(celeb)
+
+    celeb_info_from_aws['celebrities'] = celebrities_with_details
+    
+    return jsonify(celeb_info_from_aws)
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000, debug=True)
+>>>>>>> bbea508fe57e85cc63cd5bb969eb96fd38878885

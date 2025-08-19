@@ -1,397 +1,150 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>얼굴 찾기</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(to bottom, #0d0d0d, #1a1a1a);
-      color: #f5f5f5;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      background-image: url('https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=1470&q=80');
-      background-size: cover;
-      background-position: center;
-      text-shadow: 1px 1px 3px black;
-      padding: 40px 20px;
-      box-sizing: border-box;
-    }
-
-    h1 {
-      font-size: 3em;
-      margin: 10px 0 24px;
-      color: #ffd700;
-      text-shadow: 2px 2px 5px black;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: rgba(0,0,0,0.6);
-      padding: 20px 28px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
-    }
-
-    input[type="file"] {
-      margin-bottom: 14px;
-      padding: 10px;
-      border-radius: 5px;
-      border: none;
-      background-color: #333;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    button {
-      padding: 10px 20px;
-      font-size: 1.05em;
-      border: none;
-      border-radius: 8px;
-      background: linear-gradient(45deg, #ffcc00, #ff9900);
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 0 15px rgba(255, 204, 0, 0.8);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    button:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 25px rgba(255, 204, 0, 1);
-    }
-
-<<<<<<< HEAD
-    #result-container {
-      margin-top: 24px;
-      padding: 20px;
-      background-color: rgba(26, 26, 26, 0.85);
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-      max-width: 1100px;
-      width: 95%;
-      display: none;
-    }
-
-    #result-container h2 {
-      text-align: center;
-      color: #ffd700;
-      margin: 0 0 14px;
-    }
-
-    .celebrity-card {
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 12px 14px;
-      border-radius: 10px;
-      margin-bottom: 12px;
-      border-left: 5px solid #ff9900;
-    }
-
-    .grid-two {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 14px;
-    }
-
-    .table-card {
-      background: rgba(0, 0, 0, 0.35);
-      padding: 12px;
-      border-radius: 12px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
-    }
-
-    .table-card h3 {
-      margin: 6px 0 10px;
-      color: #ffd700;
-      text-align: center;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.95em;
-    }
-
-    thead th {
-      position: sticky;
-      top: 0;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
-    }
-
-    th, td {
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      padding: 8px 6px;
-      text-align: left;
-    }
-
-    .meta {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 8px;
-      font-size: 0.95em;
-      color: #ddd;
-    }
-  </style>
-=======
-        /* 결과 표시 영역 스타일 */
-        #result-container {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: rgba(26, 26, 26, 0.8);
-            border-radius: 15px;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
-            max-width: 600px;
-            width: 90%;
-            text-align: left;
-            display: none;
-        }
-        
-        #result-container h2 {
-            text-align: center;
-            color: #ffd700;
-            margin-bottom: 20px;
-        }
-        
-        /* 이미지와 텍스트를 함께 보여주기 위한 flexbox */
-        .celebrity-card {
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border-left: 5px solid #ff9900;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .celebrity-card img {
-            max-width: 90%;
-            height: auto;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        .celebrity-card .info-text {
-            width: 100%;
-            padding: 0 10px;
-        }
-        
-        .celebrity-card .info-text p {
-            margin: 5px 0;
-            font-size: 1.1em;
-        }
-        
-        .celebrity-card .info-text ul {
-            margin: 5px 0 0 0;
-            padding-left: 20px;
-        }
-
-        .celebrity-card .info-text a {
-            color: #ffd700;
-            text-decoration: none;
-            word-break: break-all;
-        }
-
-        .celebrity-card .info-text a:hover {
-            text-decoration: underline;
-        }
+    <meta charset="UTF-8">
+    <title>얼굴 찾기</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* 전체 배경과 글꼴 */
+        body { margin: 0; font-family: 'Arial', sans-serif; background-color: #0d0d0d; color: #f5f5f5; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 40px 0; box-sizing: border-box; background-image: url('https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=1470&q=80'); background-size: cover; background-position: center; background-attachment: fixed; }
+        h1 { font-size: 3em; margin-bottom: 50px; color: #ffd700; text-shadow: 2px 2px 5px black; }
+        form { display: flex; flex-direction: column; align-items: center; background-color: rgba(0,0,0,0.6); padding: 30px 50px; border-radius: 15px; box-shadow: 0 0 20px rgba(255, 215, 0, 0.7); margin-bottom: 30px; }
+        input[type="file"] { margin-bottom: 20px; padding: 10px; border-radius: 5px; border: none; background-color: #333; color: #fff; cursor: pointer; }
+        button { padding: 12px 25px; font-size: 1.2em; border: none; border-radius: 8px; background: linear-gradient(45deg, #ffcc00, #ff9900); color: #000; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px rgba(255, 204, 0, 0.8); transition: transform 0.2s, box-shadow 0.2s; }
+        button:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255, 204, 0, 1); }
+        #result-container { padding: 20px; background-color: rgba(26, 26, 26, 0.85); border-radius: 15px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); max-width: 1200px; width: 90%; display: none; margin-bottom: 50px; }
+        #result-container h2 { text-align: center; color: #ffd700; margin-bottom: 20px; }
+        .celebrity-card { background-color: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #ff9900; display: flex; align-items: center; gap: 25px; }
+        .celebrity-card img { width: 300px; height: auto; border-radius: 5px; flex: 0 0 300px; }
+        .celebrity-card .content-wrapper { display: flex; flex-direction: row; gap: 20px; width: 100%; }
+        .celebrity-card .info-section { flex: 1.5; }
+        .celebrity-card .news-section { flex: 1; }
+        .info-table { width: 100%; border-collapse: collapse; }
+        .info-table td { padding: 12px 8px; border-bottom: 1px solid #444; vertical-align: top; font-size: 1.1em; }
+        .info-table tr:last-child td { border-bottom: none; }
+        .info-table td:first-child { width: 100px; font-weight: bold; color: #d4af37; }
+        .info-table ul { list-style: none; padding: 0; margin: 0; }
+        .info-table ul li a { color: #f5f5f5; text-decoration: underline; overflow-wrap: break-word; }
+        .biography-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid #555; }
+        .biography-section h4 { margin-top: 0; margin-bottom: 10px; color: #d4af37; font-size: 1.2em; }
+        .biography-section p { font-size: 0.95em; line-height: 1.6; color: #e0e0e0; margin: 0; max-height: 150px; overflow-y: auto; padding-right: 10px; }
+        .social-links a { color: #ccc; font-size: 1.8em; margin: 0 10px; text-decoration: none; transition: color 0.3s ease, transform 0.3s ease; display: inline-block; }
+        .social-links a:hover { color: #ffd700; transform: scale(1.1); }
+        .news-section { background-color: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; }
+        .news-section h4 { color: #ffd700; margin: 0 0 10px 0; border-bottom: 1px solid #ffd700; padding-bottom: 5px; }
+        .news-section ul { list-style: none; padding: 0; margin: 0; }
+        .news-section li { margin-bottom: 8px; }
+        .news-section li a { display: block; color: #f5f5f5; text-decoration: none; transition: color 0.3s ease; }
+        .news-section li a:hover { color: #ffd700; }
+        .news-section .news-title { font-weight: bold; }
+        .news-section .news-source { font-size: 0.9em; color: #ccc; }
+        @media (max-width: 900px) { .celebrity-card, .celebrity-card .content-wrapper { flex-direction: column; align-items: center; } .celebrity-card img { width: 90%; max-width: 300px; flex: none; } }
     </style>
->>>>>>> 74219b08c0ecf3138dd9d697eafb3b519b76f56b
 </head>
 <body>
-  <h1>얼굴 찾기</h1>
-  <form id="uploadForm" action="/find_celeb_face" method="post" enctype="multipart/form-data">
-    <input type="file" name="file1" accept="image/*" required />
-    <button type="submit">인식</button>
-  </form>
+    <h1>얼굴 찾기</h1>
+    <form id="uploadForm" action="/find_celeb_face" method="post" enctype="multipart/form-data">
+        <input type="file" name="file1" accept="image/*" required>
+        <button type="submit">인식</button>
+    </form>
 
-  <div id="result-container">
-    <h2>인식 결과</h2>
-    <div id="celebrity-info"></div>
-
-    <div class="meta" id="meta"></div>
-
-    <div class="grid-two">
-      <div class="table-card">
-        <h3>영화</h3>
-        <table id="movies-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>제목</th>
-              <th>연도</th>
-              <th>역할</th>
-              <th>출연유형</th>
-              <th>평점</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <div class="table-card">
-        <h3>TV 프로그램</h3>
-        <table id="tvs-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>제목</th>
-              <th>연도</th>
-              <th>역할</th>
-              <th>출연유형</th>
-              <th>평점</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+    <div id="result-container">
+        <h2>인식 결과</h2>
+        <div id="celebrity-info"></div>
     </div>
-  </div>
 
-  <script>
-    const uploadForm = document.getElementById('uploadForm');
-    const resultContainer = document.getElementById('result-container');
-    const celebrityInfo = document.getElementById('celebrity-info');
-    const meta = document.getElementById('meta');
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const resultContainer = document.getElementById('result-container');
+        const celebrityInfo = document.getElementById('celebrity-info');
 
-<<<<<<< HEAD
-    const moviesTableBody = document.querySelector('#movies-table tbody');
-    const tvsTableBody = document.querySelector('#tvs-table tbody');
-=======
         uploadForm.addEventListener('submit', function(event) {
             event.preventDefault();
->>>>>>> 74219b08c0ecf3138dd9d697eafb3b519b76f56b
-
-    function renderTable(tbody, rows) {
-      tbody.innerHTML = '';
-      rows.forEach((r, idx) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${idx + 1}</td>
-          <td>${r.title}</td>
-          <td>${r.year || ''}</td>
-          <td>${r.character || ''}</td>
-          <td>${r.role_type || ''}</td>
-          <td>${(r.vote_average ?? '').toString()}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-<<<<<<< HEAD
-    uploadForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const formData = new FormData(uploadForm);
-
-      // 로딩 상태
-      resultContainer.style.display = 'block';
-      celebrityInfo.innerHTML = '<div class="celebrity-card">인식 중입니다. 잠시만 기다려주세요...</div>';
-      moviesTableBody.innerHTML = '';
-      tvsTableBody.innerHTML = '';
-      meta.textContent = '';
-
-      try {
-        const res = await fetch('/find_celeb_face', { method: 'POST', body: formData });
-        const data = await res.json();
-
-        if (data.result !== 'success') {
-          celebrityInfo.innerHTML = `<div class="celebrity-card">오류: ${data.error || '인식 실패'}</div>`;
-          return;
-        }
-
-        const a = data.actor || {};
-        const name = a.name || '미상';
-        const gender = a.gender || '미상';
-        const confidence = a.confidence ? `${a.confidence.toFixed(1)}%` : '';
-
-        let html = `<div class="celebrity-card">
-          <p><strong>이름:</strong> ${name}</p>
-          <p><strong>성별:</strong> ${gender}</p>
-          ${confidence ? `<p><strong>일치도:</strong> ${confidence}</p>` : ''}
-        `;
-        if (a.urls && a.urls.length) {
-          html += '<p><strong>관련 링크:</strong></p><ul>' + a.urls.map(u => `<li><a href="${u}" target="_blank">${u}</a></li>`).join('') + '</ul>';
-        }
-        html += '</div>';
-        celebrityInfo.innerHTML = html;
-
-        // 표 채우기
-        renderTable(moviesTableBody, data.movies || []);
-        renderTable(tvsTableBody, data.tvs || []);
-
-        // 부가 정보
-        const mCount = (data.movies || []).length;
-        const tCount = (data.tvs || []).length;
-        meta.textContent = `영화 ${mCount}편 · TV ${tCount}편`;
-
-      } catch (e) {
-        celebrityInfo.innerHTML = `<div class="celebrity-card">오류가 발생했습니다: ${e.message}</div>`;
-      }
-    });
-  </script>
-=======
+            const formData = new FormData(this);
             celebrityInfo.innerHTML = '<p style="text-align:center;">인식 중입니다. 잠시만 기다려주세요...</p>';
             resultContainer.style.display = 'block';
 
-            fetch('/find_celeb_face', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('네트워크 응답이 올바르지 않습니다.');
-                }
-                return response.json();
-            })
+            fetch('/find_celeb_face', { method: 'POST', body: formData })
+            .then(response => response.ok ? response.json() : Promise.reject('네트워크 응답 오류'))
             .then(data => {
-                if (data.result === 'success') {
-                    if (data.celebrities && data.celebrities.length > 0) {
-                        celebrityInfo.innerHTML = '';
-                        data.celebrities.forEach(celeb => {
-                            const card = document.createElement('div');
-                            card.className = 'celebrity-card';
+                if (data.result === 'success' && data.celebrities && data.celebrities.length > 0) {
+                    celebrityInfo.innerHTML = '';
+                    data.celebrities.forEach(celeb => {
+                        const card = document.createElement('div');
+                        card.className = 'celebrity-card';
+                        let imageHtml = `<img src="${celeb.image_url || 'https://via.placeholder.com/300x450?text=No+Image'}" alt="${celeb.name} 이미지">`;
 
-                            let imageHtml = '';
-                            if (celeb.image_url) {
-                                imageHtml = `<img src="${celeb.image_url}" alt="${celeb.name} 이미지">`;
-                            } else {
-                                imageHtml = `<img src="https://via.placeholder.com/200x200?text=No+Image" alt="이미지 없음">`;
-                            }
-                            
-                            let infoHtml = `<div class="info-text">`;
-                            infoHtml += `<p><strong>이름:</strong> ${celeb.name}</p>`;
-                            infoHtml += `<p><strong>성별:</strong> ${celeb.gender}</p>`;
-                            
-                            if (celeb.urls && celeb.urls.length > 0) {
-                                infoHtml += `<p><strong>관련 정보:</strong></p>`;
-                                infoHtml += '<ul>';
-                                celeb.urls.forEach(url => {
-                                    // URL이 http 또는 https로 시작하지 않으면 앞에 http://를 추가합니다.
-                                    const fullUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `http://${url}`;
-                                    infoHtml += `<li><a href="${fullUrl}" target="_blank">${url}</a></li>`;
-                                });
-                                infoHtml += '</ul>';
-                            }
-                            
-                            infoHtml += `</div>`;
-                            
-                            card.innerHTML = imageHtml + infoHtml;
-                            celebrityInfo.appendChild(card);
-                        });
-                    } else {
-                        celebrityInfo.innerHTML = '<p style="text-align:center;">사진에서 유명인을 찾을 수 없습니다.</p>';
-                    }
+                        function getLinkNameFromUrl(url) {
+                            if (url.includes('imdb.com')) return 'IMDB';
+                            if (url.includes('wikipedia.org')) return 'Wikipedia';
+                            if (url.includes('wikidata.org')) return 'Wikidata';
+                            try { return new URL(url).hostname.replace('www.', ''); } catch (e) { return url; }
+                        }
+                        function translateDepartment(department) {
+                            if (department === 'Acting') return '배우';
+                            if (department === 'Directing') return '감독';
+                            return department;
+                        }
+
+                        let infoTableHtml = `<table class="info-table">`;
+                        infoTableHtml += `<tr><td>이름</td><td>${celeb.name}</td></tr>`;
+                        infoTableHtml += `<tr><td>성별</td><td>${celeb.gender}</td></tr>`;
+                        infoTableHtml += `<tr><td>직업</td><td>${translateDepartment(celeb.known_for_department) || '정보 없음'}</td></tr>`;
+                        infoTableHtml += `<tr><td>생년월일</td><td>${celeb.birthday || '정보 없음'}</td></tr>`;
+                        infoTableHtml += `<tr><td>출생지</td><td>${celeb.place_of_birth || '정보 없음'}</td></tr>`;
+                        
+                        if (celeb.urls && celeb.urls.length > 0) {
+                            let urlsList = '';
+                            celeb.urls.forEach(url => {
+                                const fullUrl = url.startsWith('http') ? url : `http://${url}`;
+                                urlsList += `<li><a href="${fullUrl}" target="_blank">${getLinkNameFromUrl(fullUrl)}</a></li>`;
+                            });
+                            if (urlsList) infoTableHtml += `<tr><td>관련 정보</td><td><ul>${urlsList}</ul></td></tr>`;
+                        }
+                        
+                        let socialLinksHtml = '';
+                        const ids = celeb.external_ids;
+                        if (ids) {
+                            if (ids.instagram_id) socialLinksHtml += `<a href="https://www.instagram.com/${ids.instagram_id}" target="_blank"><i class="fa-brands fa-instagram"></i></a>`;
+                            if (ids.twitter_id) socialLinksHtml += `<a href="https://twitter.com/${ids.twitter_id}" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>`;
+                            if (ids.facebook_id) socialLinksHtml += `<a href="https://www.facebook.com/${ids.facebook_id}" target="_blank"><i class="fa-brands fa-facebook"></i></a>`;
+                        }
+                        if (socialLinksHtml) {
+                            infoTableHtml += `<tr><td>소셜</td><td><div class="social-links">${socialLinksHtml}</div></td></tr>`;
+                        }
+                        infoTableHtml += `</table>`;
+                        
+                        let biographyHtml = '';
+                        if (celeb.biography && celeb.biography.trim() !== '') {
+                            biographyHtml = `<div class="biography-section"><h4>소개</h4><p>${celeb.biography.replace(/\n/g, '<br>')}</p></div>`;
+                        }
+                        
+                        let infoSectionHtml = `<div class="info-section">${infoTableHtml}${biographyHtml}</div>`;
+                        
+                        // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+                        //               뉴스 생성 로직 복원
+                        // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+                        let newsHtml = `<div class="news-section"><h4>최신 뉴스</h4>`;
+                        if (celeb.news && celeb.news.length > 0) {
+                            newsHtml += '<ul>';
+                            celeb.news.forEach(newsArticle => {
+                                newsHtml += `<li><a href="${newsArticle.url}" target="_blank">
+                                    <span class="news-title">${newsArticle.title}</span><br>
+                                    <span class="news-source">출처: ${newsArticle.source}</span>
+                                </a></li>`;
+                            });
+                            newsHtml += '</ul>';
+                        } else {
+                            newsHtml += `<p>최신 뉴스 정보를 찾을 수 없습니다.</p>`;
+                        }
+                        newsHtml += `</div>`;
+                        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+                        
+                        card.innerHTML = imageHtml + `<div class="content-wrapper">${infoSectionHtml}${newsHtml}</div>`;
+                        celebrityInfo.appendChild(card);
+                    });
                 } else {
-                    celebrityInfo.innerHTML = `<p style="text-align:center;">오류: ${data.error}</p>`;
+                     celebrityInfo.innerHTML = `<p style="text-align:center;">${data.error || '사진에서 유명인을 찾을 수 없습니다.'}</p>`;
                 }
             })
             .catch(error => {
@@ -399,6 +152,5 @@
             });
         });
     </script>
->>>>>>> 74219b08c0ecf3138dd9d697eafb3b519b76f56b
 </body>
 </html>
