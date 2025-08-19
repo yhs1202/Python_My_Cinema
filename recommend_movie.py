@@ -100,7 +100,11 @@ def get_data(df: pd.DataFrame)-> list:
     df['genre_ids'] = df['genre_ids'].apply(
         lambda lst: [genre_dict.get(str(gid)) for gid in lst if str(gid) in genre_dict]
     )
-    df['original_language'] = df['original_language'].fillna("N/A")
+    lang_map = {'ko': '한국어', 'en': '영어', 'ja': '일본어'}
+    df['original_language'] = (df['original_language']
+                            .fillna("N/A")
+                            .map(lang_map)  # Map language codes to Korean names
+    )
     df['overview'] = (df['overview']
                     .replace("", "줄거리가 없습니다.")
                     .fillna("줄거리가 없습니다.")
