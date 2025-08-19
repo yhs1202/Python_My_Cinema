@@ -8,7 +8,7 @@
             background: #121212;
             color: #eee;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 2em;
+            margin: 7em;
         }
         h1, h2 {
             color: #1DB954;
@@ -38,8 +38,8 @@
         .cards {
             display: grid;
             grid-template-columns: repeat(3, 1fr);  /* 3열 */
-            grid-gap: 1.5em;                        /* 칸 간격 */
-            max-width: 1200px;
+            grid-gap: 1.2em;                        /* 칸 간격 */
+            max-width: 1800px;
             margin: 0 auto;
         }
         
@@ -48,10 +48,10 @@
             color: #eee;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(29, 185, 84, 0.2);
-            padding: 3em 2em;
+            padding: 1em 1em;
             text-align: center;
             transition: box-shadow 0.2s;
-            width: 260px;
+            width: 580px;
             font-size: 1.15em;
         }
 
@@ -67,14 +67,35 @@
         }
 
         .movie_card img.movie_poster {
-            width: 180px;
-            height: 270px;
+            width: 400px;
+            height: 580px;
             object-fit: cover;
             border-radius: 6px;
-            margin-bottom: 1.2em;
+            margin-bottom: 1em;
             box-shadow: 0 2px 8px rgba(29, 185, 84, 0.15);
             background: #222;
         }
+        .info-box{
+            display: inline-block;
+            background-color: #1DB954;
+            color: #121212;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1em;
+            margin: 0 0.5em 0.5em 0;
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.8);
+            cursor: default;
+        }
+
+        .overview-box{
+            display: block;
+            max-width: 100%;
+            padding: 12px 12px;
+            margin-top: 0.5em;
+            line-height: 1.4;
+        }
+
     </style>
 </head>
 <body>
@@ -88,11 +109,14 @@
                         <img src="{{movie.poster_url}}" alt="{{movie.title}} 포스터" class="movie_poster">
                         <br>
                         <h3>{{movie.title}}</h3>
-                        <p>장르     : {{movie.genre}}</p>
-                        <p>평점     : {{movie.rating}}</p>
-                        <p>러닝타임  : {{movie.runtime}}</p>
-                        <p>언어     : {{movie.languages}}</p>
-                        <p><strong>줄거리 : </strong> {{movie.overview}}</p>
+                        <p>
+                            <span class="info-box">장르: {{ movie.genre }}</span>
+                            <span class="info-box">평점: {{ movie.rating }}</span>
+                            <span class="info-box">언어: {{ movie.language }}</span>
+                        </p>
+                        <p>
+                            <span class="info-box overview-box"><strong>줄거리:</strong> {{ movie.overview }}</span>
+                        </p>                        
                     </div>
                 {% endfor %}
             </div>
