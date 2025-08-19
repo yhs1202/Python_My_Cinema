@@ -1,6 +1,8 @@
 import requests
 import random
 import pandas as pd
+from flask import Flask, render_template, request, jsonify
+
 
 # ======== 1. 장르 한글 ↔ ID 매핑 ========
 genre_dict = {
@@ -11,6 +13,11 @@ genre_dict = {
     "10402": "음악", "9648": "미스터리"
 }
 
+# Modify your TMDB API KEY here
+################################################
+TMDB_API_KEY = "066db65e606a576b241c3ba9050dff3f"  
+################################################
+
 # 한글 → ID 변환
 def get_genre_id_by_name(korean_name) -> str:
     result = ""
@@ -20,7 +27,7 @@ def get_genre_id_by_name(korean_name) -> str:
     return result[:-1] if result else None
 
 
-def get_movies(api_key, country='ko', runtime_type=None, count=10, genre_id=None) -> pd.DataFrame:
+def get_movies(api_key, genre_id=None, runtime_type=None, rating=None, country='ko') -> pd.DataFrame:
     """
     특정 장르의 영화 목록을 페이지 범위로 가져오는 함수
     
@@ -39,10 +46,11 @@ def get_movies(api_key, country='ko', runtime_type=None, count=10, genre_id=None
     for page_num in range(1, page_range + 1):    
         params = {
             "api_key": api_key,
-            "with_original_language": country,  # 국가 코드로 필터링
             "with_genres": genre_id,
             "with_runtime.gte": 60 * runtime_type,  # minimum runtime
             "with_runtime.lte": 60 * (runtime_type + 1) if runtime_type != 3 else None,  # maximum runtime
+            "vote_average.gte": rating,  # 최소 평점 5점 이상
+            "with_original_language": country,  # 국가 코드로 필터링
             "language": "ko-KR",  # 한국어 데이터 요청
             "sort_by": "popularity.desc",
             "include_adult" : False,
@@ -66,15 +74,15 @@ def get_movies(api_key, country='ko', runtime_type=None, count=10, genre_id=None
 
         all_movies.extend(movies)
 
-    # count보다 많으면 랜덤 샘플링, 아니면 그대로 반환
-    # print(f"총 {len(all_movies)}개의 영화가 검색되었습니다.")
-    if count and len(all_movies) > count:
-        all_movies = random.sample(all_movies, count)
+    # # count보다 많으면 랜덤 샘플링, 아니면 그대로 반환
+    # # print(f"총 {len(all_movies)}개의 영화가 검색되었습니다.")
+    # if count and len(all_movies) > count:
+    #     all_movies = random.sample(all_movies, count)
 
     return pd.DataFrame(all_movies)  # DataFrame으로 변환하여 반환
 
 
-def get_data(df: pd.DataFrame) -> tuple:
+def get_data(df: pd.DataFrame):
     col_list = [
     'backdrop_path',        # concatenated with 'https://image.tmdb.org/t/p/w1280' (string)
     'genre_ids',            # list of genre name which in genre_dict (list of string, e.g., ['판타지', '역사', '액션'])
@@ -86,10 +94,11 @@ def get_data(df: pd.DataFrame) -> tuple:
     'vote_average',         # average rating (0-10 scale) (string with 2 decimal places)
     'vote_count'            # total number of votes (int)
     ]
+    # Drop columns not in col_list
     df = df.drop(columns=[col for col in df.columns if col not in col_list])
 
+    # Fill missing values and format columns
     base_url = "https://image.tmdb.org/t/p/w1280"
-
     df['backdrop_path'] = df['backdrop_path'].apply(
         lambda x: base_url + x if x else base_url + "/no_image.jpg"
     )
@@ -106,37 +115,68 @@ def get_data(df: pd.DataFrame) -> tuple:
     df['vote_average'] = df['vote_average'].apply(lambda x: f"{float(x):.2f}" if x else "N/A")
     df['vote_count'] = df['vote_count'].apply(lambda x: int(x) if x else "N/A")
 
-    for i in range(len(df)):
-        # df.loc[i]['genre_ids'] = df.loc[i]['genre_ids'] if df.loc[i]['genre_ids'] else []
-        title = df.loc[i]['backdrop_path']
-        genre_names = df.loc[i]['genre_ids']
-        original_language = df.loc[i]['original_language']
-        overview = df.loc[i]['overview']
-        poster_path = df.loc[i]['poster_path']
-        release_date = df.loc[i]['release_date'] 
-        title = df.loc[i]['title']
-        vote_average = df.loc[i]['vote_average'] 
-        vote_count = df.loc[i]['vote_count']
+    # Convert DataFrame to list of dictionaries
+    movies = []
+    for _, row in df.iterrows():
+        movie = {
+            "title": row['title'],
+            "genre": ", ".join(row['genre_ids']),
+            "rating": row['vote_average'],
+            # "runtime": row.get('runtime', 'N/A'),  # runtime may not be in the original data
+            "language": row['original_language'],
+            "poster_url": row['poster_path'],
+            "overview": row['overview']
+        }
+        movies.append(movie)
+    return movies
 
-        # print(f"{i+1}\n{'*'*100}")
-        # print(f"제목-> {title}")
-        # print(f"장르-> {genre_names}")
-        # print(f"날짜-> {release_date}")
-        # print(f"평점-> {vote_average}")
-        # print(f"투표수-> {vote_count}")
-        # print(f"언어-> {original_language}")
-        # print(f"bdp_path-> {bdp_path}")
-        # print(f"poster_path-> {poster_path}")
-        # print(f"줄거리\n {'-'*100} \n{overview}\n {'-'*100}")
+def get_recommendations():
+    if request.method == 'POST':
+        genres      = request.form.getlist('genres')
+        #adult       = request.form.get('adult')
+        runtime     = request.form.get('runtime')
+        min_rating  = float(request.form.get('min_rating'))
+        languages   = request.form.getlist('languages')
 
-    # return bdp_path, genre_names, original_language, overview, poster_path, release_date, title, vote_average, vote_count
-    return df
+        # example of recommended movies
+        '''
+        recommended_movies = [
+        {
+        "title": "기생충",
+        "genre": "드라마, 스릴러",
+        "rating": 8.6,
+        "runtime": 132,
+        "language": "ko",
+        "poster_url": "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/mSi0gskYpmf1FbXngM37s2HppXh.jpg",
+        "overview": "가난한 가족이 부유한 가정에 들어가면서 벌어지는 이야기"
+        },
+        # ... more movies
+        ]
+        '''
+        print(genres)
+        print(runtime)
+        print(min_rating)
+        print(languages)
 
+        recommended_movies = get_data(get_movies(
+            api_key=TMDB_API_KEY,
+            genre_id=",".join(genres) if genres else None,
+            runtime_type=1,
+            rating=min_rating if min_rating else 0,
+            country='ko'
+        ))
+        return render_template(
+                               'recommend_mv.html',
+                               genres=genres,
+                               runtime=runtime,
+                               min_rating=min_rating,
+                               languages=languages,
+                               movies=recommended_movies
+                               )
+    else:
+        return render_template('recommend_mv.html', movies=[])
 
 if __name__ == "__main__":
-    # Modify your TMDB API KEY here
-    API_KEY = "066db65e606a576b241c3ba9050dff3f"  
-
 
     # for test
     while True:
@@ -146,8 +186,10 @@ if __name__ == "__main__":
         input_lang = input("언어 입력 (ko, en, jp):>> ")
         input_runtime = input("영화 길이 범위 입력 (1: 1~2h, 2: 2~3h, 3: 3h 이상):>> ")
         input_genre = input("장르 번호 입력>> ")
-        recommended_movies = get_movies(API_KEY, "ko", runtime_type=1, count=10, genre_id=input_genre)
-        print(get_data(recommended_movies))
+        recommended_movies = get_movies(TMDB_API_KEY, "ko", runtime_type=1, count=10, genre_id=input_genre)
+        rst = get_data(recommended_movies)
+        print(type(rst))
+        print(rst[0])
 
     # genre_list = [g.strip() for g in input_genres.split(",") if g.strip()]  # ['28','35','18']
     # genre_str = ",".join(genre_list)  # "28,35,18"
