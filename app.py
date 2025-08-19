@@ -51,11 +51,8 @@ def recommend_mv_survey():
 
 # 추천 결과 페이지 - POST 요청으로 설문 데이터 받고 추천 영화 보여줌
 @app.route("/recommend_mv", methods=["POST"])
-def get_recommendations():
-    return render_template("recommend_mv.html")
-
-
-
+def get_result():
+    return get_recommendations()
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
