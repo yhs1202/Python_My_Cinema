@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Oldest Movie Game</title>
+    <style>
+        /* PyQt5 게임과 유사한 스타일 꾸미기 */
+        body { text-align: center; background-color: #0d0d1a; color: #e0e0e0; }
+        h1 { color: #d4af37; }
+        #game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 450px; margin: auto; }
+        .movie-poster { width: 130px; cursor: pointer; border-radius: 8px; border: 2px solid transparent; }
+        .movie-poster:hover { border-color: #d4af37; }
+        .disabled { opacity: 0.3; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <h1>Find the Oldest Movie!</h1>
+    <h2 id="info-text">Loading...</h2>
+    <div id="game-grid"></div>
+
+    <script>
+        // 이 안에 JavaScript 게임 로직을 작성합니다.
+        document.addEventListener('DOMContentLoaded', () => {
+            const gameGrid = document.getElementById('game-grid');
+            const infoText = document.getElementById('info-text');
+            let correctSequence = [];
+            let currentStep = 0;
+            let startTime;
+
+            // 1. 서버(Flask API)에서 영화 데이터를 가져옵니다.
+            async function startGame() {
+                const response = await fetch('/api/game-movies');
+                const data = await response.json();
+
+                if (data.result === 'success') {
+                    const movies = data.movies;
+                    // 2. 정답 순서(개봉일순)와 화면 표시 순서(랜덤)를 만듭니다.
+                    correctSequence = [...movies].sort((a, b) => a.release_date.localeCompare(b.release_date));
+                    const shuffledMovies = [...movies].sort(() => Math.random() - 0.5);
+                    
+                    startTime = Date.now();
+                    infoText.textContent = `Click the Oldest Movie! (1/9)`;
+                    
+                    // 3. 영화 포스터를 화면에 그립니다.
+                    shuffledMovies.forEach(movie => {
+                        const img = document.createElement('img');
+                        img.src = `https://image.tmdb.org/t/p/w200${movie.poster_path}`;
+                        img.dataset.movieId = movie.id; // 이미지에 영화 ID 저장
+                        img.classList.add('movie-poster');
+                        img.onclick = handlePosterClick;
+                        gameGrid.appendChild(img);
+                    });
+                } else {
+                    infoText.textContent = "게임을 불러오는 데 실패했습니다.";
+                }
+            }
+
+            // 4. 포스터 클릭 이벤트 처리
+            function handlePosterClick(event) {
+                const clickedMovieId = parseInt(event.target.dataset.movieId);
+                
+                // 5. 정답 확인
+                if (clickedMovieId === correctSequence[currentStep].id) {
+                    event.target.classList.add('disabled'); // 맞춘 포스터 비활성화
+                    event.target.onclick = null; // 클릭 이벤트 제거
+                    currentStep++;
+                    
+                    if (currentStep === 9) {
+                        const record = (Date.now() - startTime) / 1000;
+                        infoText.textContent = `Success! Record: ${record.toFixed(2)} Sec`;
+                    } else {
+                        infoText.textContent = `Correct! (${currentStep + 1}/9)`;
+                    }
+                } else {
+                    infoText.textContent = "Wrong! Try again.";
+                }
+            }
+            startGame();
+        });
+    </script>
+</body>
+</html>

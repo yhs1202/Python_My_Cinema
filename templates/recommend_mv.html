@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>추천 영화 목록</title>
+    <style>
+        body {
+            background: #121212;
+            color: #eee;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 7em;
+        }
+        h1, h2 {
+            color: #1DB954;
+            text-align: center;
+            margin-bottom: 0.5em;
+        }
+
+        fieldset {
+            border: none;
+            margin-bottom: 1.8em;
+            padding: 0;
+        }
+        legend {
+            font-size: 1.2em;
+            margin-bottom: 0.8em;
+            font-weight: bold;
+            color: #1DB954;
+        }
+        label {
+            display: inline-block;
+            margin: 0.3em 0.5em 0.3em 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* 카드형 그리드 적용 */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);  /* 3열 */
+            grid-gap: 1.2em;                        /* 칸 간격 */
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        .movie_card {
+            background: #222;
+            color: #eee;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(29, 185, 84, 0.2);
+            padding: 1em 1em;
+            text-align: center;
+            transition: box-shadow 0.2s;
+            width: 580px;
+            font-size: 1.15em;
+        }
+
+        .movie_card:hover {
+            box-shadow: 0 8px 24px rgba(29, 185, 84, 0.4);
+            color: #1DB954;
+        }
+
+        .movie_card h3 {
+            margin-bottom: 0.8em;
+            color: #1DB954;
+            font-size: 1.5em;
+        }
+
+        .movie_card img.movie_poster {
+            width: 400px;
+            height: 580px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 1em;
+            box-shadow: 0 2px 8px rgba(29, 185, 84, 0.15);
+            background: #222;
+        }
+        .info-box{
+            display: inline-block;
+            background-color: #1DB954;
+            color: #121212;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1em;
+            margin: 0 0.5em 0.5em 0;
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.8);
+            cursor: default;
+        }
+
+        .overview-box{
+            display: block;
+            max-width: 100%;
+            padding: 12px 12px;
+            margin-top: 0.5em;
+            line-height: 1.4;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>당신이 원하는 영화 이곳에</h1>
+    <!-- 추천 받기 눌렀을 때 카드형으로 결과 출력-->
+    {% if movies %}
+        <div class="card_wrapper">
+            <div class="cards">
+                {% for movie in movies %}
+                    <div class="movie_card">
+                        <img src="{{movie.poster_url}}" alt="{{movie.title}} 포스터" class="movie_poster">
+                        <br>
+                        <h3>{{movie.title}}</h3>
+                        <p>
+                            <span class="info-box">장르: {{ movie.genre }}</span>
+                            <span class="info-box">평점: {{ movie.rating }}</span>
+                            <span class="info-box">언어: {{ movie.language }}</span>
+                        </p>
+                        <p>
+                            <span class="info-box overview-box"><strong>줄거리:</strong> {{ movie.overview }}</span>
+                        </p>                        
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</body>
+</html>
