@@ -7,6 +7,7 @@ from tmdb_helpers import *
 # search_actor에서 검색 로직과 상세 페이지 로직을 가져옵니다.
 from search_actor import process_actor_search, get_actor_details
 from recommend_movie import *
+from game_helpers import process_game_movies
 
 if not os.path.exists("static"):
     os.mkdir("static")
@@ -42,6 +43,14 @@ def find_celeb_face():
 def api_search_actors():
     return process_actor_search()
 
+# ---------------- MOVIE GAME SERVICE ----------------
+@app.route("/game")
+def game_page():
+    return render_template("game.html")
+
+@app.route("/api/game-movies")
+def get_game_movies():
+    return process_game_movies()
 
 # ---------------- MOVIE RECOMMENDATION SERVICE ----------------
 @app.route("/recommend_mv", methods=["GET", "POST"])
