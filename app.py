@@ -53,11 +53,15 @@ def get_game_movies():
     return process_game_movies()
 
 # ---------------- MOVIE RECOMMENDATION SERVICE ----------------
-@app.route("/recommend_mv", methods=["GET", "POST"])
-def recommend_movie():
+# 설문 페이지 - GET 요청으로 설문 폼 보여줌
+@app.route("/recommend_mv_survey", methods=["GET"])
+def recommend_mv_survey():
+    return render_template("recommend_mv_survey.html")
+
+# 추천 결과 페이지 - POST 요청으로 설문 데이터 받고 추천 영화 보여줌
+@app.route("/recommend_mv", methods=["POST"])
+def get_result():
     return get_recommendations()
-
-
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
