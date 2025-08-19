@@ -86,7 +86,8 @@ def get_data(df: pd.DataFrame)-> list:
     'release_date',         # release date in 'YYYY-MM-DD' format (string)
     'title',                # movie title in Korean (string)
     'vote_average',         # average rating (0-10 scale) (string with 2 decimal places)
-    'vote_count'            # total number of votes (int)
+    'vote_count',           # total number of votes (int)
+    'id'                    # movie ID (numpy.int64)
     ]
     # Drop columns not in col_list
     df = df.drop(columns=[col for col in df.columns if col not in col_list])
@@ -116,6 +117,7 @@ def get_data(df: pd.DataFrame)-> list:
     df['title'] = df['title'].replace("", "제목이 없습니다.").fillna("제목이 없습니다.")
     df['vote_average'] = df['vote_average'].apply(lambda x: f"{float(x):.2f}" if x else "N/A")
     df['vote_count'] = df['vote_count'].apply(lambda x: int(x) if x else "N/A")
+    df['id'] = 'https://www.themoviedb.org/movie/' + df['id'].astype(str)  # Convert ID to string for consistency
 
     # Convert DataFrame to list of dictionaries
     movies = []
@@ -191,7 +193,6 @@ if __name__ == "__main__":
         input_runtime = input("영화 길이 범위 입력 (1: 1~2h, 2: 2~3h, 3: 3h 이상):>> ")
         input_genre = input("장르 번호 입력>> ")
         recommended_movies = get_movies(TMDB_API_KEY, genre_id=input_genre, runtime_type=int(input_runtime), rating=5, country=input_lang)
-
-        rst = get_data(recommended_movies)
-        print(rst[0])
-        print("\n" + "*"*100)
+        recommended_movies = get_data(recommended_movies)
+        # print(rst[0])
+        # print("\n" + "*"*100)
