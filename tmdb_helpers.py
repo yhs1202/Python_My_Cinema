@@ -211,9 +211,7 @@ def build_tv_table(tv_credits: dict) -> List[Dict[str, Any]]:
     rows.sort(key=_sort_key)
     return rows
 
-# 배우의 전체 출연작 목록(필모그래피)을 가져오는 함수를 새로 추가합니다.
-def tmdb_combined_credits(person_id: int):
-    """TMDB에서 배우의 출연작 목록을 가져오는 함수"""
-    return tmdb_get(f"/person/{person_id}/combined_credits")
-
-
+def tmdb_person_combined_credits(person_id: int):
+    """TMDB에서 인물의 영화와 TV 출연작 전체 목록을 가져오는 함수"""
+    data = tmdb_get(f"/person/{person_id}/combined_credits", language="ko-KR")
+    return data.get("cast", [])
