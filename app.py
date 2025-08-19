@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 
 # tmdb_helpers에서 얼굴 인식에 필요한 함수를 가져옵니다.
 from tmdb_helpers import process_celeb_face 
@@ -12,8 +12,6 @@ if not os.path.exists("static"):
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"))
-
-# --- Page Rendering Routes ---
 
 @app.route("/")
 def index():
@@ -36,12 +34,6 @@ def actor_detail(actor_id):
 @app.route("/find_celeb_face", methods=["POST"])
 def find_celeb_face():
     return process_celeb_face()
-
-@app.route("/api/search-actors")
-def api_search_actors():
-    return process_actor_search()
-
-# --- Server Start ---
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
