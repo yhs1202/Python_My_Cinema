@@ -3,6 +3,7 @@
 import boto3
 import requests
 import hashlib
+import os
 
 # --- 추가된 라이브러리 ---
 from bs4 import BeautifulSoup
