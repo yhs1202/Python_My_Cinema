@@ -14,8 +14,8 @@
         button:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255, 204, 0, 1); }
         #result-container { padding: 20px; background-color: rgba(26, 26, 26, 0.85); border-radius: 15px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); max-width: 1200px; width: 90%; display: none; margin-bottom: 50px; }
         #result-container h2 { text-align: center; color: #ffd700; margin-bottom: 20px; }
-        .celebrity-card { background-color: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #ff9900; display: flex; align-items: center; gap: 25px; }
-        .celebrity-card img { width: 300px; height: auto; border-radius: 5px; flex: 0 0 300px; }
+        .celebrity-card { background-color: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #ff9900; display: flex; align-items: center; gap: 25px; flex-direction: column; }
+        .celebrity-card img { width: 300px; height: auto; border-radius: 5px; }
         .celebrity-card .content-wrapper { display: flex; flex-direction: row; gap: 20px; width: 100%; }
         .celebrity-card .info-section { flex: 1.5; }
         .celebrity-card .news-section { flex: 1; }
@@ -30,15 +30,47 @@
         .biography-section p { font-size: 0.95em; line-height: 1.6; color: #e0e0e0; margin: 0; max-height: 150px; overflow-y: auto; padding-right: 10px; }
         .social-links a { color: #ccc; font-size: 1.8em; margin: 0 10px; text-decoration: none; transition: color 0.3s ease, transform 0.3s ease; display: inline-block; }
         .social-links a:hover { color: #ffd700; transform: scale(1.1); }
-        .news-section { background-color: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; }
+
+        .news-section { background-color: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; height: 350px; overflow-y: auto;}
         .news-section h4 { color: #ffd700; margin: 0 0 10px 0; border-bottom: 1px solid #ffd700; padding-bottom: 5px; }
-        .news-section ul { list-style: none; padding: 0; margin: 0; }
+        .news-section ul { list-style: none; padding: 0; margin: 0;}
         .news-section li { margin-bottom: 8px; }
         .news-section li a { display: block; color: #f5f5f5; text-decoration: none; transition: color 0.3s ease; }
         .news-section li a:hover { color: #ffd700; }
-        .news-section .news-title { font-weight: bold; }
-        .news-section .news-source { font-size: 0.9em; color: #ccc; }
-        @media (max-width: 900px) { .celebrity-card, .celebrity-card .content-wrapper { flex-direction: column; align-items: center; } .celebrity-card img { width: 90%; max-width: 300px; flex: none; } }
+        @media (max-width: 900px) { .celebrity-card, .celebrity-card .content-wrapper { flex-direction: column; align-items: center; } .celebrity-card img { width: 90%; max-width: 300px; } }
+
+        /* === ADDED === Filmography layout & table */
+        .filmography { display:flex; gap:20px; margin-top:18px; width:100%; }
+        .filmography .col { flex:1; background:rgba(0,0,0,.45); padding:14px; border-radius:10px; }
+        .filmography .col.movies { border:2px solid #ffd700; } /* 영화(빨강) */
+        .filmography .col.tv { border:2px solid #ffd700; }     /* TV(파랑) */
+        
+        /* '영화', 'TV/예능' 제목 가운데 정렬 */
+        .filmography h4 { text-align: center; margin:0 0 10px 0; color:#ffd700; border-bottom:1px solid #ffd700; padding-bottom:6px; }
+
+        .film-table { width:100%; border-collapse:collapse; }
+        .film-table th, .film-table td { padding:8px 6px; border-bottom:1px solid #444; font-size:.95em; vertical-align:top; }
+        .film-table th { text-align:left; color:#d4af37; }
+        .film-table tr:last-child td { border-bottom:none; }
+
+        /* NEW 2) 제목 링크 색상을 항상 '흰색'으로 */
+        .film-table .title a,
+        .film-table .title a:link,
+        .film-table .title a:visited { 
+        color: #fff !important;      /* 파랑/보라 대신 흰색 고정 */
+        text-decoration: none;
+        }
+
+        /* 링크에 마우스 올렸을 때 스타일(원하면 유지) */
+        .film-table .title a:hover,
+        .film-table .title a:active {
+        color: #ffd700 !important;   /* 호버 시 금색 */
+        text-decoration: underline;
+        }
+
+        /*긴 표 스크롤 넣고 싶으면 아래 주석 해제*/
+        .filmography .col { max-height:360px; overflow:auto; }
+        
     </style>
 </head>
 <body>
@@ -53,6 +85,47 @@
         <div id="celebrity-info"></div>
     </div>
 
+    <!-- === ADDED ===: filmography 테이블 생성 함수 -->
+    <script>
+      function buildFilmographyTable(rows, kind /* 'movie' | 'tv' */) {
+        if (!rows || rows.length === 0) {
+          return `<p style="color:#ccc;margin:4px 0 0 0;">데이터 없음</p>`;
+        }
+        let html = `
+          <table class="film-table">
+            <thead>
+              <tr>
+                <th style="width:10%">제목</th>
+                <th style="width:10%">연도</th>
+                <th style="width:10%">평점</th>
+                <th style="width:10%">인기도</th>
+                <th style="width:15%">배역</th>
+                <th style="width:15%">출연</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        rows.forEach(function(r){
+          var vote = (r.vote != null ? r.vote : 0).toFixed ? r.vote.toFixed(1) : Number(r.vote || 0).toFixed(1);
+          var pop  = Math.round(r.popularity != null ? r.popularity : 0);
+          var tmdbPath = (kind === 'tv') ? 'tv' : 'movie';
+          var link = r.tmdb_id ? ('https://www.themoviedb.org/' + tmdbPath + '/' + r.tmdb_id) : '#';
+          html += `
+            <tr>
+              <td class="title"><a href="${link}" target="_blank" rel="noopener">${r.title || '-'}</a></td>
+              <td>${r.year || '-'}</td>
+              <td>${vote}</td>
+              <td>${pop}</td>
+              <td>${r.character || '-'}</td>
+              <td>${r.role_type || '-'}</td>
+            </tr>
+          `;
+        });
+        html += `</tbody></table>`;
+        return html;
+      }
+    </script>
+
     <script>
         const uploadForm = document.getElementById('uploadForm');
         const resultContainer = document.getElementById('result-container');
@@ -65,13 +138,14 @@
             resultContainer.style.display = 'block';
 
             fetch('/find_celeb_face', { method: 'POST', body: formData })
-            .then(response => response.ok ? response.json() : Promise.reject('네트워크 응답 오류'))
+            .then(response => response.ok ? response.json() : Promise.reject(new Error('네트워크 응답 오류')))
             .then(data => {
                 if (data.result === 'success' && data.celebrities && data.celebrities.length > 0) {
                     celebrityInfo.innerHTML = '';
                     data.celebrities.forEach(celeb => {
                         const card = document.createElement('div');
                         card.className = 'celebrity-card';
+
                         let imageHtml = `<img src="${celeb.image_url || 'https://via.placeholder.com/300x450?text=No+Image'}" alt="${celeb.name} 이미지">`;
 
                         function getLinkNameFromUrl(url) {
@@ -83,16 +157,16 @@
                         function translateDepartment(department) {
                             if (department === 'Acting') return '배우';
                             if (department === 'Directing') return '감독';
-                            return department;
+                            return department || '정보 없음';
                         }
 
                         let infoTableHtml = `<table class="info-table">`;
-                        infoTableHtml += `<tr><td>이름</td><td>${celeb.name}</td></tr>`;
-                        infoTableHtml += `<tr><td>성별</td><td>${celeb.gender}</td></tr>`;
-                        infoTableHtml += `<tr><td>직업</td><td>${translateDepartment(celeb.known_for_department) || '정보 없음'}</td></tr>`;
+                        infoTableHtml += `<tr><td>이름</td><td>${celeb.name || '-'}</td></tr>`;
+                        infoTableHtml += `<tr><td>성별</td><td>${celeb.gender || '-'}</td></tr>`;
+                        infoTableHtml += `<tr><td>직업</td><td>${translateDepartment(celeb.known_for_department)}</td></tr>`;
                         infoTableHtml += `<tr><td>생년월일</td><td>${celeb.birthday || '정보 없음'}</td></tr>`;
                         infoTableHtml += `<tr><td>출생지</td><td>${celeb.place_of_birth || '정보 없음'}</td></tr>`;
-                        
+
                         if (celeb.urls && celeb.urls.length > 0) {
                             let urlsList = '';
                             celeb.urls.forEach(url => {
@@ -101,29 +175,25 @@
                             });
                             if (urlsList) infoTableHtml += `<tr><td>관련 정보</td><td><ul>${urlsList}</ul></td></tr>`;
                         }
-                        
+
                         let socialLinksHtml = '';
-                        const ids = celeb.external_ids;
-                        if (ids) {
-                            if (ids.instagram_id) socialLinksHtml += `<a href="https://www.instagram.com/${ids.instagram_id}" target="_blank"><i class="fa-brands fa-instagram"></i></a>`;
-                            if (ids.twitter_id) socialLinksHtml += `<a href="https://twitter.com/${ids.twitter_id}" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>`;
-                            if (ids.facebook_id) socialLinksHtml += `<a href="https://www.facebook.com/${ids.facebook_id}" target="_blank"><i class="fa-brands fa-facebook"></i></a>`;
-                        }
-                        if (socialLinksHtml) {
-                            infoTableHtml += `<tr><td>소셜</td><td><div class="social-links">${socialLinksHtml}</div></td></tr>`;
-                        }
+                        const ids = celeb.external_ids || {};
+                        if (ids.instagram_id) socialLinksHtml += `<a href="https://www.instagram.com/${ids.instagram_id}" target="_blank"><i class="fa-brands fa-instagram"></i></a>`;
+                        if (ids.twitter_id)   socialLinksHtml += `<a href="https://twitter.com/${ids.twitter_id}" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>`;
+                        if (ids.facebook_id)  socialLinksHtml += `<a href="https://www.facebook.com/${ids.facebook_id}" target="_blank"><i class="fa-brands fa-facebook"></i></a>`;
+                        if (socialLinksHtml) infoTableHtml += `<tr><td>소셜</td><td><div class="social-links">${socialLinksHtml}</div></td></tr>`;
+
                         infoTableHtml += `</table>`;
-                        
+
                         let biographyHtml = '';
                         if (celeb.biography && celeb.biography.trim() !== '') {
                             biographyHtml = `<div class="biography-section"><h4>소개</h4><p>${celeb.biography.replace(/\n/g, '<br>')}</p></div>`;
                         }
-                        
+
+                        // 정보/뉴스 영역
                         let infoSectionHtml = `<div class="info-section">${infoTableHtml}${biographyHtml}</div>`;
-                        
-                        // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
-                        //               뉴스 생성 로직 복원
-                        // ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+
+                        // 뉴스
                         let newsHtml = `<div class="news-section"><h4>최신 뉴스</h4>`;
                         if (celeb.news && celeb.news.length > 0) {
                             newsHtml += '<ul>';
@@ -138,9 +208,30 @@
                             newsHtml += `<p>최신 뉴스 정보를 찾을 수 없습니다.</p>`;
                         }
                         newsHtml += `</div>`;
-                        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-                        
-                        card.innerHTML = imageHtml + `<div class="content-wrapper">${infoSectionHtml}${newsHtml}</div>`;
+
+                        // === ADDED === 필모그래피 표 생성
+                        const films = celeb.filmography || { movies: [], tv: [] };
+                        const movieTableHtml = buildFilmographyTable(films.movies, 'movie');
+                        const tvTableHtml    = buildFilmographyTable(films.tv, 'tv');
+                        const filmographyHtml = `
+                          <div class="filmography">
+                            <div class="col movies">
+                              <h4>영화</h4>
+                              ${movieTableHtml}
+                            </div>
+                            <div class="col tv">
+                              <h4>TV/예능</h4>
+                              ${tvTableHtml}
+                            </div>
+                          </div>
+                        `;
+
+                        // 카드 조립 (=== ADDED: filmographyHtml 추가됨)
+                        card.innerHTML =
+                          imageHtml +
+                          `<div class="content-wrapper">${infoSectionHtml}${newsHtml}</div>` +
+                          filmographyHtml;
+
                         celebrityInfo.appendChild(card);
                     });
                 } else {
