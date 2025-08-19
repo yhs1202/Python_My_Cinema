@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, jsonify
 
 # 새로 만든 tmdb_person_external_ids 함수를 import 목록에 추가합니다.
 from tmdb_helpers import *
+from recommend_movie import get_recommendations
 
 if not os.path.exists("static"):
     os.mkdir("static")
@@ -28,14 +29,7 @@ def find_celeb_face():
 # ---------------- MOVIE RECOMMENDATION SERVICE ----------------
 @app.route("/recommend_mv", methods=["GET", "POST"])
 def recommend_movie():
-    return render_template("recommend_mv.html")
-
-
-@app.route("/get_recommendations", methods=["POST"])
-def get_recommendations():
-    pass
-
-
+    return get_recommendations()
 
 
 if __name__ == '__main__':
