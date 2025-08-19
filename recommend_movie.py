@@ -33,7 +33,7 @@ def get_movies(api_key, genre_id=None, runtime_type=None, rating=None, country='
 
     #### Modify page range here ####
     page_range = 5
-    
+
     # multiple countries processing
     countries = country.split(",") if country else ['ko']
     for country in countries:
@@ -128,7 +128,7 @@ def get_data(df: pd.DataFrame)-> list:
         movies.append(movie)
     return movies
 
-def get_recommendations() -> function:
+def get_recommendations():
     if request.method == 'POST':
         genres      = request.form.getlist('genres')
         #adult       = request.form.get('adult')
