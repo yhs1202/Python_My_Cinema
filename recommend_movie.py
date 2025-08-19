@@ -115,6 +115,7 @@ def get_data(df: pd.DataFrame):
     df['vote_average'] = df['vote_average'].apply(lambda x: f"{float(x):.2f}" if x else "N/A")
     df['vote_count'] = df['vote_count'].apply(lambda x: int(x) if x else "N/A")
 
+    print(df)
     # Convert DataFrame to list of dictionaries
     movies = []
     for _, row in df.iterrows():
