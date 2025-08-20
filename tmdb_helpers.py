@@ -1,14 +1,13 @@
 # tmdb_helpers.py
-
 import os
 import requests
-from flask import Flask, render_template, request, jsonify
+from flask import request, jsonify
 from aws import recognize_celebrities
 from werkzeug.utils import secure_filename
 from typing import Optional, List, Dict, Any
 
 # TMDB API 키와 기본 URL 설정
-TMDB_API_KEY = os.getenv("TMDB_API_KEY", "47f87bbcaf0d3e659a0bcbdf66f536d0")
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 BASE = "https://api.themoviedb.org/3"
 
 def tmdb_get(path, **params):
