@@ -207,23 +207,28 @@ def get_recommendations():
         print(min_rating)   # 5.0
         print(languages)    # ['ko', 'en']
         # Get recommended movies based on the selected criteria
-        recommended_movies = get_data(get_movies(
-            genre_id        = ",".join(genres) if genres else None,
-            runtime_type    = int(runtime) if runtime else 1,
-            release_year_type_list = [int(x) for x in year_types] if year_types else [0],
-            rating          = min_rating if min_rating else 0,
-            country         = ",".join(languages) if languages else 'ko'
-        ))
-
-        return render_template('recommend_mv.html',
-                               genres=genres,
-                               runtime=runtime,
-                               min_rating=min_rating,
-                               languages=languages,
-                               movies=recommended_movies
-                               )
+        try:
+            recommended_movies = get_data(get_movies(
+                genre_id        = ",".join(genres) if genres else None,
+                runtime_type    = int(runtime) if runtime else 1,
+                release_year_type_list = [int(x) for x in year_types] if year_types else [0],
+                rating          = min_rating if min_rating else 0,
+                country         = ",".join(languages) if languages else 'ko'
+            ))
+            return render_template('recommend_mv.html',
+                                genres=genres,
+                                runtime=runtime,
+                                min_rating=min_rating,
+                                languages=languages,
+                                movies=recommended_movies
+                                )
+        except Exception as e:
+            print(f"!!!!!!!!!!!!!!Error occurred while fetching movies: {e}")
+            return render_template('recommend_mv_fail.html',
+                    warning="조건에 맞는 영화가 없습니다 ㅠㅠ 다시 시도해 주세요.")
     else:
         return render_template('recommend_mv.html', movies=[])
+
 
 if __name__ == "__main__":
     pass
