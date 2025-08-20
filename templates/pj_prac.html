@@ -3,36 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>영화 사이트</title>
+    <title>My Cinema</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
+
     <style>
+        /* --- 커튼 효과 스타일 --- */
+        #curtain-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .curtain {
+            position: absolute;
+            top: 0;
+            width: 50.5%;
+            height: 100%;
+            background: linear-gradient(to right, 
+                #4c0000 0%, #a10000 10%, #7a0000 20%, #a10000 30%, #5e0000 40%, 
+                #a10000 50%, #6d0000 60%, #a10000 70%, #5e0000 80%, #a10000 90%, 
+                #4c0000 100%
+            );
+            transition: transform 2.5s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        #left-curtain {
+            left: 0;
+            box-shadow: inset -15px 0 25px -10px rgba(0,0,0,0.7);
+        }
+
+        #right-curtain {
+            right: 0;
+            box-shadow: inset 15px 0 25px -10px rgba(0,0,0,0.7);
+        }
+
+        #left-curtain.open { transform: translateX(-100%); }
+        #right-curtain.open { transform: translateX(100%); }
+        /* --- 커튼 스타일 끝 --- */
+
         body {
             text-align: center;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
             background: linear-gradient(180deg, #0d0d1a, #050509);
             color: #e0e0e0;
             margin: 0;
+            font-size: 16px; /* 기본 글자 크기 설정 */
         }
+
         h1 {
-            font-size: 48px;
+            font-family: 'Cinzel', serif;
+            font-size: 5.5em; /* 72px */
             margin-top: 60px;
-            color: #d4af37; /* 톤 다운된 골드 */
-            text-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+            font-weight: 700;
+            letter-spacing: 5px;
+            color: #d4af37;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.7);
         }
+        
         .button-container {
             margin-top: 60px;
             display: flex;
             justify-content: center;
             gap: 60px;
+            flex-wrap: wrap; /* 화면 작아지면 줄바꿈 */
         }
+
         .btn {
             display: flex;
             flex-direction: column;
             align-items: center;
             text-decoration: none;
             color: #d4af37;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 1.4em; /* 20px */
+            font-weight: 700;
         }
+
         .icon-box {
             width: 150px;
             height: 150px;
@@ -45,60 +97,90 @@
             box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
             transition: all 0.3s ease;
         }
+
         .icon-box img {
-            width: 80px;
-            height: 80px;
+            width: 110px;
+            height: 110px;
         }
+
         .btn:hover .icon-box {
             background-color: #d4af37;
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
         }
+
         .btn:hover span {
             color: white;
         }
+
         .btn span {
             margin-top: 15px;
         }
-        /* 정보 표시 카드 */
+
         .info-section {
             margin: 60px auto;
             background-color: #1a1a1a;
-            max-width: 800px;
-            padding: 30px;
+            max-width: 960px;
+            padding: 40px;
             border-radius: 12px;
             text-align: left;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
+
         .info-section h2 {
             color: #f0f0f0;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            font-size: 1.8em; /* 28.8px */
         }
+
         .info-section p {
             color: #cccccc;
-            line-height: 1.6;
+            line-height: 1.7;
+            font-size: 1.1em; /* 17.6px */
+        }
+
+        .info-section ul {
+            font-size: 1.1em; /* 17.6px */
+            line-height: 1.7;
+            list-style: none;
+            padding-left: 0;
+            color: #cccccc;
+        }
+
+        .info-section li {
+            margin-bottom: 12px;
+        }
+
+        .info-section strong {
+            color: #d4af37;
         }
     </style>
 </head>
 <body>
+    <div id="curtain-wrapper">
+        <div id="left-curtain" class="curtain"></div>
+        <div id="right-curtain" class="curtain"></div>
+    </div>
+
     <h1>My Cinema</h1>
+
     <div class="button-container">
         <a href="/find_actor" class="btn">
             <div class="icon-box">
-                <img src="/static/find_face.png">
+                <img src="/static/find_face.png" alt="얼굴 찾기 아이콘">
             </div>
             <span>얼굴 찾기</span>
         </a>
         <a href="/recommend_mv_survey" class="btn">
             <div class="icon-box">
-                <img src="/static/find_movie.png" alt="영화 찾기 아이콘">
+                <img src="/static/find_movie.png" alt="영화 추천 아이콘">
             </div>
             <span>영화 추천</span>
         </a>
         <a href="/search_actor" class="btn">
             <div class="icon-box">
-                <img src="/static/find_actor.png" alt="영화 찾기 아이콘">
+                <img src="/static/find_actor.png" alt="배우 검색 아이콘">
             </div>
-            <span>배우검색</span>
+            <span>배우 검색</span>
         </a>
         <a href="/game" class="btn">
             <div class="icon-box">
@@ -108,14 +190,45 @@
         </a>
     </div>
 
-    <!-- 정보 표시 영역 -->
     <div class="info-section">
-        <h2 align = "center">서비스 소개</h2>
+        <h2 align="center">🎬 My Cinema에 오신 것을 환영합니다!</h2>
         <p>
-            My Cinema는 얼굴 인식과 영화 추천 기능을 통해 맞춤형 영화 경험을 제공합니다.
-            원하는 배우를 찾아보고, 취향에 맞는 영화를 추천받을 수 있습니다.
-            간단한 클릭만으로 다양한 영화 정보를 빠르게 확인하세요.
+            My Cinema는 여러분의 영화 경험을 한 차원 높여줄 개인 맞춤형 영화 플랫폼입니다.
+            단순한 정보 제공을 넘어, 영화와 더 깊이 교감할 수 있는 특별한 기능들을 만나보세요.
         </p>
+        <ul>
+            <li>
+                <strong>얼굴 찾기:</strong> 궁금한 인물의 사진을 업로드하여 어떤 배우인지 즉시 확인하고, 상세 프로필과 최신 소식까지 한눈에 볼 수 있습니다.
+            </li>
+            <li>
+                <strong>영화 추천:</strong> 간단한 취향 설문으로 내 마음에 쏙 드는 영화를 추천받거나, 특정 배우의 최고 평점 작품을 찾아보세요.
+            </li>
+            <li>
+                <strong>배우 검색:</strong> 좋아하는 배우의 이름을 검색하여 필모그래피, 수상 경력 등 상세 정보를 손쉽게 탐색할 수 있습니다.
+            </li>
+            <li>
+                <strong>미니 게임:</strong> 영화 포스터를 보고 제목을 맞히는 등, 영화와 관련된 재미있는 미니 게임을 즐기며 잠시 쉬어가세요!
+            </li>
+        </ul>
     </div>
+
+    <script>
+        window.onload = function() {
+            const leftCurtain = document.getElementById('left-curtain');
+            const rightCurtain = document.getElementById('right-curtain');
+            const curtainWrapper = document.getElementById('curtain-wrapper');
+
+            // 0.5초 후에 커튼 애니메이션 시작
+            setTimeout(function() {
+                leftCurtain.classList.add('open');
+                rightCurtain.classList.add('open');
+            }, 500);
+
+            // 3초 후 커튼 요소를 제거
+            setTimeout(function() {
+                curtainWrapper.style.display = 'none';
+            }, 3000); 
+        };
+    </script>
 </body>
 </html>
