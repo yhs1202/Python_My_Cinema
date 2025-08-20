@@ -194,11 +194,12 @@
     </style>
 </head>
 <body>
-    <h1>당신이 원하는 영화는 어떤 영화인가요?</h1>
+    <h1>넷플릭스 산책 끝. 목적지 직행할 영화 한 편... 뭐로 할래?</h1>
+    <!-- 당신이 원하는 영화는 어떤 영화인가요 -->
     <form method="POST" action="/recommend_mv">
         <!-- 1단계: 장르 선택 (중복 선택 가능) -->
         <fieldset>
-            <legend>1. 좋아하는 영화 장르를 선택해주세요 (복수 선택 가능)</legend>
+            <legend>1. 장르 선택 (복수 선택 가능) — 직감 ON, 망설임 OFF</legend>
 
             <input type="checkbox" id="genre28" name="genres" value="28">
             <label for="genre28" class="checkbox-custom">액션</label>
@@ -269,7 +270,7 @@
 
         <!-- 2단계: 러닝 타임 선택 -->
         <fieldset>
-            <legend>2. 원하는 러닝타임을 선택해주세요</legend>
+            <legend>2. 러닝타임 — 간식 한 봉지 vs 두 봉지, 설마 세 봉지...?</legend>
 
             <input type="radio" id="runtime_1" name="runtime" value="1" required>
             <label for="runtime_1" class="radio-custom">1~2시간</label>
@@ -283,14 +284,14 @@
 
         <!-- 3.: 평점 최소값 -->
         <fieldset>
-            <legend>3. 최소 평점을 입력해주세요</legend>
+            <legend>3. 최소 평점 — 과감하게 내리면 숨은 꿀잼 발견각</legend>
             <input type="range" name="min_rating" min="0" max="10" step="0.5" value="5" id="min_rating_slider" oninput="this.nextElementSibling.value = this.value">
             <output>5</output>
         </fieldset>
 
         <!-- 4. 선호하는 영화 언어 (복수 선택 가능) -->
         <fieldset>
-            <legend>4. 선호하는 영화 언어를 선택해주세요 (복수 선택 가능)</legend>
+            <legend>4. 언어 선택 — 글로벌 감성 ON, 현지감성 ON (복수 선택 가능)</legend>
 
             <input type="checkbox" id="lang_ko" name="languages" value="ko">
             <label for="lang_ko" class="checkbox-custom">한국어</label>
@@ -304,7 +305,7 @@
 
         <!-- 5. 개봉 일자 선택 -->
         <fieldset>
-            <legend>5. 개봉 연도를 선택하세요 (복수 선택 가능)</legend>
+            <legend>5. 타임라인 픽 — 익숙한 맛 vs 새로운 맛, 지금의 나에겐?</legend>
 
             <!-- <input type="checkbox" id="year_all" name="release_year_range[]" value="all" checked> 
             <label for="year_all" class="checkbox-custom">전체</label> -->
@@ -323,7 +324,7 @@
         </fieldset>
 
 
-        <button type="submit">추천 받기</button>
+        <button type="submit">스크롤 끝, 추천 시작!</button>
     </form>
 
 
