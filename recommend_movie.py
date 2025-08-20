@@ -225,7 +225,7 @@ def get_recommendations():
         except Exception as e:
             print(f"!!!!!!!!!!!!!!Error occurred while fetching movies: {e}")
             return render_template('recommend_mv_fail.html',
-                    warning="영화 추천을 가져오는 중 오류가 발생했습니다. 다시 시도해 주세요.")
+                    warning="조건에 맞는 영화가 없습니다 ㅠㅠ 다시 시도해 주세요.")
     else:
         return render_template('recommend_mv.html', movies=[])
 
