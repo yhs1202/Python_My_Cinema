@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 
-from flask import Flask, render_template, request, jsonify, session, redirect
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 
 # tmdb_helpers에서 얼굴 인식에 필요한 함수를 가져옵니다.
 from tmdb_helpers import * # search_actor에서 검색 로직과 상세 페이지 로직을 가져옵니다.
@@ -81,9 +81,12 @@ def recommend_mv_survey():
     return render_template("recommend_mv_survey.html")
 
 # 추천 결과 페이지 - POST 요청으로 설문 데이터 받고 추천 영화 보여줌
-@app.route("/recommend_mv", methods=["POST"])
+@app.route("/recommend_mv", methods=["GET", "POST"])
 def get_result():
-    return get_recommendations()
+    if request.method == "POST":
+        return get_recommendations()
+    else:
+        return redirect(url_for("recommend_mv_survey"))
 
 
 if __name__ == '__main__':
