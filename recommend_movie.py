@@ -97,9 +97,9 @@ def get_movies(genre_id=None, runtime_type=None, release_year_type_list=[0], rat
 
                 all_movies.extend(movies)
 
-            # Randomly select 21 movies if more than 21 are available
-            if len(all_movies) > 21:
-                all_movies = random.sample(all_movies, 21)
+    # Randomly select 21 movies if more than 21 are available
+    if len(all_movies) > 21:
+        all_movies = random.sample(all_movies, 21)
 
     return pd.DataFrame(all_movies)
 
@@ -176,7 +176,7 @@ def get_recommendations():
         genres      = request.form.getlist('genres')
         #adult       = request.form.get('adult')
         runtime     = request.form.get('runtime')
-        year_types   = request.form.get('release_year_range')
+        year_types   = request.form.getlist('release_year_range')
         min_rating  = float(request.form.get('min_rating'))
         languages   = request.form.getlist('languages')
 
@@ -204,7 +204,7 @@ def get_recommendations():
         recommended_movies = get_data(get_movies(
             genre_id        = ",".join(genres) if genres else None,
             runtime_type    = int(runtime) if runtime else 1,
-            release_year_type_list = ",".split(year_types.strip()) if year_types else [],
+            release_year_type_list = [int(x) for x in year_types] if year_types else [0],
             rating          = min_rating if min_rating else 0,
             country         = ",".join(languages) if languages else 'ko'
         ))
