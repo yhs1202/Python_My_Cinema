@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="ko">
+    {% if warning %}
+    <script>
+        alert("{{ warning }}");
+            history.back();
+    </script>
+    {% endif %}
+</html>

@@ -1,53 +1,11 @@
 import sys
-import os
 import random
 import time
 import requests
-from dotenv import load_dotenv
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QGridLayout
 from PyQt5.QtGui import QFont, QPixmap, QIcon
-
-# 프로그램 시작 시 .env 파일에서 환경 변수를 로드
-load_dotenv()
-
-def get_popular_movies():
-    """TMDB API를 사용해 인기 영화 목록 9개를 안전하게 가져오는 함수"""
-    api_key = os.getenv("TMDB_API_KEY")
-    if not api_key:
-        print("오류: TMDB_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
-        return None
-
-    random_page = random.randint(1, 10)
-    url = (f"https://api.themoviedb.org/3/discover/movie?"
-           f"api_key={api_key}"
-           f"&language=ko-KR"
-           f"&sort_by=popularity.desc"
-           f"&page={random_page}"
-           f"&with_watch_monetization_types=flatrate")
-
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()['results']
-        
-        movies = []
-        for movie in data:
-            if movie.get('poster_path') and movie.get('release_date'):
-                movies.append({
-                    'id': movie['id'],
-                    'title': movie['title'],
-                    'poster_path': movie['poster_path'],
-                    'release_date': movie['release_date']
-                })
-            if len(movies) == 9:
-                break
-        
-        return movies if len(movies) == 9 else None
-
-    except requests.exceptions.RequestException as e:
-        print(f"API 요청 중 오류가 발생했습니다: {e}")
-        return None
+from game_helpers import get_popular_movies
 
 class MovieGameApp(QWidget):
     """PyQt5를 사용한 영화 퀴즈 게임 메인 클래스"""

@@ -53,6 +53,12 @@ It provides 4 main features via a web UI:
   ![4](/static/readme_img/4_game_example.png)
 ---
 
+### 5) 영화제 (Film Festival)
+- kobis 사이트를 통해 영화제 정보를 제공합니다.
+- 주요 모듈: `festival_crawler`
+
+  ![5](/static/readme_img/5_film_festival_example.png)
+
 ## Project Structure
 
 ```
@@ -150,7 +156,9 @@ python app.py
 - Flask 세션을 이용한 게임 정답 저장 및 관리
 - **Dependencies**: Flask, requests, python-dotenv
 
-
+### `festival_crawler.py`
+- kobis 사이트에서 `get_film_festivals_with_selenium`을 사용해 크롤링
+- **Dependencies**: selenium, webdriver-manager, beautifulsoup4
 
 ---
 

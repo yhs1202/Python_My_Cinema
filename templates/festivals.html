@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영화제 정보 - My Cinema</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        body { text-align: center; font-family: 'Noto Sans KR', sans-serif; background: linear-gradient(180deg, #0d0d1a, #050509); color: #e0e0e0; margin: 0; padding: 40px 20px; }
+        h1 { font-family: 'Cinzel', serif; font-size: 4em; font-weight: 700; letter-spacing: 5px; color: #d4af37; text-shadow: 0 0 10px rgba(212, 175, 55, 0.7); cursor: pointer; margin-bottom: 60px; }
+        h2 { color: #d4af37; font-size: 2.5em; margin-top: 50px; margin-bottom: 30px; }
+        
+        .festival-list-container { 
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px; 
+        }
+
+        .festival-card { 
+            background-color: #1a1a1a; 
+            border-radius: 12px; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+            padding: 20px; 
+            text-align: left; 
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .festival-info { flex-grow: 1; }
+        .festival-info h3 { font-family: 'Noto Sans KR', sans-serif; color: #d4af37; font-size: 1.5em; margin: 0 0 10px 0; }
+        .festival-desc { font-size: 0.9em; color: #cccccc; line-height: 1.5; }
+        .home-link-container { margin-top: 60px; }
+        .home-link { color: #d4af37; text-decoration: none; font-size: 1.2em; border: 1px solid #d4af37; padding: 10px 20px; border-radius: 8px; transition: all 0.3s ease; }
+        .home-link:hover { background-color: #d4af37; color: #1a1a1a; }
+    </style>
+</head>
+<body>
+
+    <h1 onclick="location.href='/'">Film Festivals</h1>
+
+    <h2>🎬 전체 영화제 목록</h2>
+    
+    <div class="festival-list-container">
+        {% if all_festivals %}
+            {% for festival in all_festivals %}
+            <div class="festival-card">
+                <div class="festival-info">
+                    <h3>{{ festival.title }}</h3>
+                    <p class="festival-desc"><strong>개최지:</strong> {{ festival.location }}</p>
+                    <p class="festival-desc"><strong>개최 기간:</strong> {{ festival.period }}</p>
+                </div>
+                {% if festival.website %}
+                <p class="festival-desc" style="margin-top: auto;"><strong>홈페이지:</strong> <a href="{{ festival.website }}" target="_blank">바로가기</a></p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>현재 등록된 영화제 정보가 없습니다.</p>
+        {% endif %}
+    </div>
+
+    <div class="home-link-container">
+        <a href="/" class="home-link">메인으로 돌아가기</a>
+    </div>
+
+</body>
+</html>

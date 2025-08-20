@@ -2,27 +2,64 @@
 import pandas as pd
 from flask import render_template, request
 from tmdb_helpers import tmdb_get
+import random
 
 
-# ======== 1. 장르 한글 ↔ ID 매핑 ========
-genre_dict = {
-    "28": "액션", "12": "모험", "16": "애니메이션", "35": "코미디",
-    "80": "범죄", "99": "다큐멘터리", "18": "드라마", "10751": "가족",
-    "27": "공포", "10749": "로맨스", "878": "SF", "53": "스릴러",
-    "10752": "전쟁", "37": "서부", "14": "판타지", "36": "역사",
-    "10402": "음악", "9648": "미스터리"
-}
-
-def get_movies(genre_id=None, runtime_type=None, rating=None, country='ko') -> pd.DataFrame:
+def build_release_date_filter(year_type: int) -> dict:
     """
-    특정 장르의 영화 목록을 페이지 범위로 가져오는 함수
-    
-    :param country: ISO 639-1 국가 코드 (예: 'ko', 'en', 'ja')
-    :param genre_id: 장르 ID (예: '28' 액션)
-    :param runtime_type: 1(60~120), 2(120~180), 3(180+)
-    :param api_key: TMDb API 키
-    :param genre_id: 장르 ID
-    :param count: 최종 반환할 영화 수
+    TMDb API VALUE 생성 위한 개봉 날짜 범위 생성 함수 (dict)
+    year_type:
+      1: all
+      2: before 2000
+      3: 2000-2010
+      4: 2010-2020
+      5: after 2020
+    """
+    f = {}
+    if year_type == 0:  # all
+        return f
+    elif year_type == 1:  # before 2000
+        f["primary_release_date.lte"] = "1999-12-31"
+    elif year_type == 2:  # 2000-2010
+        f["primary_release_date.gte"] = "2000-01-01"
+        f["primary_release_date.lte"] = "2010-12-31"
+    elif year_type == 3:  # 2010-2020
+        f["primary_release_date.gte"] = "2010-01-01"
+        f["primary_release_date.lte"] = "2020-12-31"
+    elif year_type == 4:  # 2021-
+        f["primary_release_date.gte"] = "2021-01-01"
+    else:
+        pass
+    return f
+
+
+def build_params(genre_id=None, runtime_type=None, release_year_type=0, rating=None, country='ko') -> dict:
+    """
+    TMDB API 호출에 필요한 파라미터를 생성하는 함수
+    :param genre_id: 장르 ID (e.g., '28,12' for 액션, 모험)
+    :param runtime_type: 1(60-120), 2(120-180), 3(180+)
+    :param year_type: 1(all), 2(before 2000), 3(2000-2010), 4(2010-2020), 5(after 2020)
+    :param rating: 최소 평점 (0-10)
+    :param country: ISO 639-1 국가 코드 (e.g., 'ko', 'en', 'ja')
+    """
+    params = {
+        "with_genres": genre_id,
+        "with_runtime.gte": 60 * runtime_type,  # 최소 상영 시간
+        "with_runtime.lte": 60 * (runtime_type + 1) if runtime_type != 3 else None,  # 최대 상영 시간
+        **build_release_date_filter(release_year_type),  # 개봉 날짜 필터
+        "vote_average.gte": rating,  # 최소 평점
+        "with_original_language": country,  # 국가 코드로 필터링
+        "language": "ko-KR",  # 한국어 데이터 요청
+        "sort_by": "popularity.desc",
+        "include_adult": False,
+        "certification_country": "KR",  # 한국 등급 필터링
+        "certification.lte": "15"  # 한국 등급 중 ALL/12/15까지만 포함
+    }
+    return params
+
+def get_movies(genre_id=None, runtime_type=None, release_year_type_list=[0], rating=None, country='ko') -> pd.DataFrame:
+    """
+    설정한 조건의 영화 목록을 페이지 범위로 가져오는 함수
     """
 
     #### Modify page range here ####
@@ -31,33 +68,39 @@ def get_movies(genre_id=None, runtime_type=None, rating=None, country='ko') -> p
     all_movies = []
     # multiple countries processing
     countries = country.split(",") if country else ['ko']
-    for country in countries:
-        for page_num in range(1, page_range + 1):    
-            params = {
-                "with_genres": genre_id,
-                "with_runtime.gte": 60 * runtime_type,  # minimum runtime
-                "with_runtime.lte": 60 * (runtime_type + 1) if runtime_type != 3 else None,  # maximum runtime
-                "vote_average.gte": rating,  # 최소 평점 5점 이상
-                "with_original_language": country,  # 국가 코드로 필터링
-                "language": "ko-KR",  # 한국어 데이터 요청
-                "sort_by": "popularity.desc",
-                "include_adult" : False,
-                "page": page_num,
-                "certification_country": "KR",  # 한국 등급 필터링
-                "certification.lte": "15"  # 한국 19금 제외 (ALL/12/15까지만)
-            }
-            movies_data = tmdb_get('/discover/movie', **params)
-            movies = movies_data.get('results', [])
+    # if all year types are selected,
+    # build_release_date_filter will return empty dict (No constraints)
+    if len(release_year_type_list) == 4:    
+        release_year_type_list = [0]    
+    for release_year_type in release_year_type_list:
+        for country in countries:
+            for page_num in range(1, page_range + 1):    
+                params = build_params(
+                    genre_id=genre_id,
+                    runtime_type=runtime_type,
+                    release_year_type=release_year_type,
+                    rating=rating,
+                    country=country
+                ) 
+                movies_data = tmdb_get('/discover/movie', **params)
+                movies = movies_data.get('results', [])
+                if not movies:
+                    print(f"{page_num} 페이지에서 영화를 찾을 수 없습니다.")
+                    break
 
-            if not movies:
-                print(f"{page_num} 페이지에서 영화를 찾을 수 없습니다.")
-                break
+                all_movies.extend(movies)
 
-            all_movies.extend(movies)
-    return pd.DataFrame(all_movies)  # DataFrame으로 변환하여 반환
+    # Randomly select 21 movies if more than 21 are available
+    if len(all_movies) > 21:
+        all_movies = random.sample(all_movies, 21)
+
+    return pd.DataFrame(all_movies)
 
 
 def get_data(df: pd.DataFrame)-> list:
+    """
+    DataFrame에서 필요한 컬럼을 추출하고, 형식을 맞춰서 영화 정보를 반환하는 함수
+    """
     col_list = [
     'backdrop_path',        # concatenated with 'https://image.tmdb.org/t/p/w1280' (string)
     'genre_ids',            # list of genre name which in genre_dict (list of string, e.g., ['판타지', '역사', '액션'])
@@ -72,33 +115,48 @@ def get_data(df: pd.DataFrame)-> list:
     ]
     # Drop columns not in col_list
     df = df.drop(columns=[col for col in df.columns if col not in col_list])
-    print(df)
+    # print(df)
 
-    # Fill missing values and format columns
+    ## Fill missing values and format columns
+    # Concatenate base URL for backdrop_path
     base_url = "https://image.tmdb.org/t/p/w1280"
     df['backdrop_path'] = df['backdrop_path'].apply(
         lambda x: base_url + x if x else "/no_image.png"
     )
+    # Map genre IDs to names using genre_dict
+    genre_dict = {
+    "28": "액션", "12": "모험", "16": "애니메이션", "35": "코미디",
+    "80": "범죄", "99": "다큐멘터리", "18": "드라마", "10751": "가족",
+    "27": "공포", "10749": "로맨스", "878": "SF", "53": "스릴러",
+    "10752": "전쟁", "37": "서부", "14": "판타지", "36": "역사",
+    "10402": "음악", "9648": "미스터리"
+    }
     df['genre_ids'] = df['genre_ids'].apply(
         lambda lst: [genre_dict.get(str(gid)) for gid in lst if str(gid) in genre_dict]
     )
+    # Map original_language codes to Korean names
     lang_map = {'ko': '한국어', 'en': '영어', 'ja': '일본어'}
     df['original_language'] = (df['original_language']
                             .fillna("N/A")
-                            .map(lang_map)  # Map language codes to Korean names
+                            .map(lang_map)
     )
+    # Fill overview with default text if empty or NaN
     df['overview'] = (df['overview']
                     .replace("", "줄거리가 없습니다.")
                     .fillna("줄거리가 없습니다.")
                     .apply(lambda x: x[:200] + "..." if len(x) > 200 else x))   # up to 200 characters
+    # Concatenate base URL for poster_path
     df['poster_path'] = df['poster_path'].apply(
         lambda x: base_url + x if x else "/no_image.png"
     )
+    # Format release_date to 'YYYY-MM-DD' or 'N/A'
     df['release_date'] = df['release_date'].fillna("N/A")
+    # Format title, vote_average, and vote_count
     df['title'] = df['title'].replace("", "제목이 없습니다.").fillna("제목이 없습니다.")
     df['vote_average'] = df['vote_average'].apply(lambda x: f"{float(x):.2f}" if x else "N/A")
     df['vote_count'] = df['vote_count'].apply(lambda x: int(x) if x else "N/A")
-    df['id'] = 'https://www.themoviedb.org/movie/' + df['id'].astype(str)  # Convert ID to string for consistency
+    # Convert id to string and add TMDB URL
+    df['id'] = 'https://www.themoviedb.org/movie/' + df['id'].astype(str)
 
     # Convert DataFrame to list of dictionaries
     movies = []
@@ -117,10 +175,14 @@ def get_data(df: pd.DataFrame)-> list:
     return movies
 
 def get_recommendations():
+    """
+    Flask route to handle movie recommendations based on user input
+    """
     if request.method == 'POST':
         genres      = request.form.getlist('genres')
-        #adult       = request.form.get('adult')
+        # adult       = request.form.get('adult')
         runtime     = request.form.get('runtime')
+        year_types  = request.form.getlist('release_year_range')
         min_rating  = float(request.form.get('min_rating'))
         languages   = request.form.getlist('languages')
 
@@ -141,37 +203,42 @@ def get_recommendations():
         '''
         print(genres)   # ['28', '12']
         print(runtime)  # '1'
+        print(year_types)   # '1,2,3'
         print(min_rating)   # 5.0
         print(languages)    # ['ko', 'en']
-        country=",".join(languages) if languages else 'ko'
-        print(country)  # 'ko,en'
-        recommended_movies = get_data(get_movies(
-            genre_id=",".join(genres) if genres else None,
-            runtime_type= int(runtime) if runtime else 1,
-            rating=min_rating if min_rating else 0,
-            country=country
-        ))
-
-        return render_template(
-                               'recommend_mv.html',
-                               genres=genres,
-                               runtime=runtime,
-                               min_rating=min_rating,
-                               languages=languages,
-                               movies=recommended_movies
-                               )
+        # Get recommended movies based on the selected criteria
+        try:
+            recommended_movies = get_data(get_movies(
+                genre_id        = ",".join(genres) if genres else None,
+                runtime_type    = int(runtime) if runtime else 1,
+                release_year_type_list = [int(x) for x in year_types] if year_types else [0],
+                rating          = min_rating if min_rating else 0,
+                country         = ",".join(languages) if languages else 'ko'
+            ))
+            return render_template('recommend_mv.html',
+                                genres=genres,
+                                runtime=runtime,
+                                min_rating=min_rating,
+                                languages=languages,
+                                movies=recommended_movies
+                                )
+        except Exception as e:
+            print(f"!!!!!!!!!!!!!!Error occurred while fetching movies: {e}")
+            return render_template('recommend_mv_fail.html',
+                    warning="조건에 맞는 영화가 없습니다 ㅠㅠ 다시 시도해 주세요.")
     else:
         return render_template('recommend_mv.html', movies=[])
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
+    pass
     # for test
-    while True:
-        print(genre_dict)
-        print()
-        print("*"*100)
-        input_lang = input("언어 입력 (ko, en, ja):>> ")
-        input_runtime = input("영화 길이 범위 입력 (1: 1~2h, 2: 2~3h, 3: 3h 이상):>> ")
-        input_genre = input("장르 번호 입력>> ")
-        recommended_movies = get_movies(genre_id=input_genre, runtime_type=int(input_runtime), rating=5, country=input_lang)
-        recommended_movies = get_data(recommended_movies)
+    # while True:
+    #     print(genre_dict)
+    #     print()
+    #     print("*"*100)
+    #     input_lang = input("언어 입력 (ko, en, ja):>> ")
+    #     input_runtime = input("영화 길이 범위 입력 (1: 1~2h, 2: 2~3h, 3: 3h 이상):>> ")
+    #     input_genre = input("장르 번호 입력>> ")
+    #     recommended_movies = get_movies(genre_id=input_genre, runtime_type=int(input_runtime), rating=5, country=input_lang)
+    #     recommended_movies = get_data(recommended_movies)

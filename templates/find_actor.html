@@ -332,10 +332,66 @@
         const uploadForm = document.getElementById('uploadForm');
         const resultContainer = document.getElementById('result-container');
         const celebrityInfo = document.getElementById('celebrity-info');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const inputAreas = document.querySelectorAll('.input-area');
+        const video = document.getElementById('camera-view');
+        const canvas = document.getElementById('photo-canvas');
+        const takePhotoBtn = document.getElementById('take-photo-btn');
+        let stream;
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.dataset.tab;
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                inputAreas.forEach(area => {
+                    area.id === `${tabId}-area` ? area.classList.add('active') : area.classList.remove('active');
+                });
+                tabId === 'camera' ? startCamera() : stopCamera();
+            });
+        });
+
+        async function startCamera() {
+            if (stream) return;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("카메라 접근 오류:", err);
+                alert("카메라를 사용할 수 없습니다. 권한을 확인해주세요.");
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                video.srcObject = null;
+            }
+        }
+
+        takePhotoBtn.addEventListener('click', () => {
+            if (!stream) return alert("카메라가 활성화되지 않았습니다.");
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob(blob => {
+                const formData = new FormData();
+                formData.append('file1', blob, 'capture.jpg');
+                sendToServer(formData);
+                stopCamera();
+                document.querySelector('.tab-button[data-tab="file-upload"]').click();
+            }, 'image/jpeg');
+        });
 
         uploadForm.addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
+            sendToServer(formData);
+        });
+
+        function sendToServer(formData) {
             celebrityInfo.innerHTML = '<p style="text-align:center;">인식 중입니다. 잠시만 기다려주세요...</p>';
             resultContainer.style.display = 'block';
 
@@ -445,7 +501,7 @@
             .catch(error => {
                 celebrityInfo.innerHTML = `<p style="text-align:center;">오류가 발생했습니다: ${error.message}</p>`;
             });
-        });
+        }
     </script>
 </body>
 </html>
