@@ -1,13 +1,11 @@
 import os
-import requests
 import random
 from collections import Counter
 from dotenv import load_dotenv
 from flask import jsonify, request, session
+from tmdb_helpers import tmdb_get
 
 load_dotenv()
-
-# --- 헬퍼 함수 ---
 
 def get_popular_movies(page=None, country_code=None):
     """
@@ -21,93 +19,85 @@ def get_popular_movies(page=None, country_code=None):
 
     request_page = page if page else random.randint(1, 10)
 
-    url = (f"https://api.themoviedb.org/3/discover/movie?"
-           f"api_key={api_key}"
-           f"&language=ko-KR"
-           f"&sort_by=popularity.desc"
-           f"&page={request_page}"
-           f"&include_adult=false"
-           f"&certification_country=KR"
-           f"&certification.lte=15")
-
+    params = {
+        "api_key": api_key,
+        "language": "ko-KR",
+        "sort_by": "popularity.desc",
+        "page": request_page,
+        "include_adult": "false",
+        "certification_country": "KR",
+        "certification.lte": "15"
+    }
     if country_code:
-        url += f"&with_origin_country={country_code}"
+        params.setdefault("with_origin_country", country_code)
 
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json().get('results', [])
+    data = tmdb_get('/discover/movie', **params).get('results', [])
         
-        movies = []
-        for movie in data:
-            if movie.get('poster_path') and movie.get('release_date'):
-                movies.append({
-                    'id': movie['id'],
-                    'title': movie['title'],
-                    'poster_path': movie['poster_path'],
-                    'release_date': movie['release_date']
-                })
-            if len(movies) == 9:
-                break
+    movies = []
+    for movie in data:
+        if movie.get('poster_path') and movie.get('release_date'):
+            movies.append({
+                'id': movie['id'],
+                'title': movie['title'],
+                'poster_path': movie['poster_path'],
+                'release_date': movie['release_date']
+            })
+        if len(movies) == 9:
+            break
+    
+    if len(movies) < 9:
+        print(f"경고: 연령 등급 필터링 결과가 부족하여, 필터 없이 다시 요청합니다.")
+        params.pop("certification_country", None)
+        params.pop("certification.lte", None)
+        data_fallback = tmdb_get('/discover/movie', **params).get('results', [])
         
-        if len(movies) < 9:
-            print(f"경고: 연령 등급 필터링 결과가 부족하여, 필터 없이 다시 요청합니다.")
-            url_fallback = url.replace(f"&certification_country=KR", "").replace(f"&certification.lte=15", "")
-            response_fallback = requests.get(url_fallback)
-            response_fallback.raise_for_status()
-            data_fallback = response_fallback.json().get('results', [])
-            
-            existing_ids = {m['id'] for m in movies}
-            for movie in data_fallback:
-                if len(movies) >= 9: break
-                if movie.get('poster_path') and movie.get('release_date') and movie['id'] not in existing_ids:
-                    movies.append({ 'id': movie['id'], 'title': movie['title'], 'poster_path': movie['poster_path'], 'release_date': movie['release_date'] })
+        existing_ids = {m['id'] for m in movies}
+        for movie in data_fallback:
+            if len(movies) >= 9: break
+            if movie.get('poster_path') and movie.get('release_date') and movie['id'] not in existing_ids:
+                movies.append({ 'id': movie['id'], 'title': movie['title'], 'poster_path': movie['poster_path'], 'release_date': movie['release_date'] })
 
-        return movies
+    return movies
 
-    except requests.exceptions.RequestException as e:
-        print(f"API 요청 중 오류가 발생했습니다: {e}")
-        return None
 
 def search_person(name):
     """이름으로 배우/감독 검색"""
     api_key = os.getenv("TMDB_API_KEY")
-    url = f"https://api.themoviedb.org/3/search/person?api_key={api_key}&language=ko-KR&query={name}"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        results = response.json()['results']
-        return results[0]['id'] if results else None
-    except requests.exceptions.RequestException:
-        return None
+    params = {
+        "api_key": api_key,
+        "language": "ko-KR",
+        "query": name
+    }
+    results = tmdb_get("/search/person", **params)["results"]
+    
+    return results[0]['id'] if results else None
+
 
 def get_person_details(person_id):
     """사람 ID로 상세 정보(주요 분야 포함)와 영화 목록 전체를 반환합니다."""
     api_key = os.getenv("TMDB_API_KEY")
-    url = f"https://api.themoviedb.org/3/person/{person_id}?api_key={api_key}&language=ko-KR&append_to_response=movie_credits"
     
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"인물 상세 정보 조회 중 오류: {e}")
-        return None
+    params = {
+        "api_key": api_key,
+        "language": "ko-KR",
+        "append_to_response": "movie_credits"
+    }
+
+    return tmdb_get(f"/person/{person_id}", **params)
+
 
 def get_country_from_movies(movie_ids):
     """다수의 영화 ID를 받아 가장 빈도가 높은 제작 국가 코드를 찾아냅니다."""
     api_key = os.getenv("TMDB_API_KEY")
     countries = []
     for movie_id in movie_ids[:5]:
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}"
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            data = response.json()
-            if data.get('production_countries'):
-                countries.append(data['production_countries'][0]['iso_3166_1'])
-        except requests.exceptions.RequestException:
-            continue
+        params = {
+            "api_key": api_key,
+            "language": "ko-KR"
+        }
+        data = tmdb_get(f"/movie/{movie_id}", **params)
+        if data.get('production_countries'):
+            countries.append(data['production_countries'][0]['iso_3166_1'])
             
     return Counter(countries).most_common(1)[0][0] if countries else None
 
@@ -117,19 +107,19 @@ def get_detailed_movie_list(movies):
     detailed_movies = []
     for movie in movies:
         movie_id = movie.get('id')
-        if not movie_id or not api_key: continue
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=ko-KR&append_to_response=credits"
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            data = response.json()
-            director = next((crew['name'] for crew in data.get('credits', {}).get('crew', []) if crew['job'] == 'Director'), "정보 없음")
-            cast = [actor['name'] for actor in data.get('credits', {}).get('cast', [])[:3]]
-            genres = [genre['name'] for genre in data.get('genres', [])]
-            detailed_movies.append({'title': data.get('title'),'poster_path': data.get('poster_path'),'release_date': data.get('release_date'),'overview': data.get('overview', '줄거리 정보가 없습니다.')[:100] + "...",'vote_average': round(data.get('vote_average', 0), 1),'director': director,'cast': cast,'genres': genres})
-        except requests.exceptions.RequestException as e:
-            print(f"영화 상세 정보(ID: {movie_id}) 조회 중 오류: {e}")
+        if not movie_id or not api_key: 
             continue
+        params = {
+            "api_key": api_key,
+            "language": "ko-KR",
+            "append_to_response": "credits"
+        }
+        data = tmdb_get(f"/movie/{movie_id}", **params)
+        director = next((crew['name'] for crew in data.get('credits', {}).get('crew', []) if crew['job'] == 'Director'), "정보 없음")
+        cast = [actor['name'] for actor in data.get('credits', {}).get('cast', [])[:3]]
+        genres = [genre['name'] for genre in data.get('genres', [])]
+        detailed_movies.append({'title': data.get('title'),'poster_path': data.get('poster_path'),'release_date': data.get('release_date'),'overview': data.get('overview', '줄거리 정보가 없습니다.')[:100] + "...",'vote_average': round(data.get('vote_average', 0), 1),'director': director,'cast': cast,'genres': genres})
+
     return detailed_movies
 
 # --- 요청 처리 함수 ---

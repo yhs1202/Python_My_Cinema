@@ -1,46 +1,11 @@
 import sys
-import os
 import random
 import time
 import requests
-from dotenv import load_dotenv
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QGridLayout
 from PyQt5.QtGui import QFont, QPixmap, QIcon
-from tmdb_helpers import tmdb_get
-
-# 프로그램 시작 시 .env 파일에서 환경 변수를 로드
-load_dotenv()
-
-def get_popular_movies():
-    """TMDB API를 사용해 인기 영화 목록 9개를 안전하게 가져오는 함수"""
-    api_key = os.getenv("TMDB_API_KEY")
-    if not api_key:
-        print("오류: TMDB_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
-        return None
-
-    params = {
-        "api_key": api_key,
-        "language": "ko-KR",
-        "sort_by": "popularity.desc",
-        "page": random.randint(1, 10),
-        "with_watch_monetization_types": "flatrate"
-    }
-    data = tmdb_get("/discover/movie", **params)['results']
-
-    movies = []
-    for movie in data:
-        if movie.get('poster_path') and movie.get('release_date'):
-            movies.append({
-                'id': movie['id'],
-                'title': movie['title'],
-                'poster_path': movie['poster_path'],
-                'release_date': movie['release_date']
-            })
-        if len(movies) == 9:
-            break
-    return movies if len(movies) == 9 else None
-
+from game_helpers import get_popular_movies
 
 class MovieGameApp(QWidget):
     """PyQt5를 사용한 영화 퀴즈 게임 메인 클래스"""
