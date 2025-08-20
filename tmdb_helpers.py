@@ -78,7 +78,7 @@ def process_celeb_face():
     os.makedirs("static", exist_ok=True)
     file1_filename = secure_filename(file1.filename)
     save_path = os.path.join("static", file1_filename)
-    file1.save(save_path)
+    # file1.save(save_path)
     save_path = _normalize_to_rgb_jpeg(save_path)  # 실패 시 원본 경로 반환
 
     # 3) AWS Rekognition 유명인 인식
