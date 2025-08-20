@@ -58,7 +58,7 @@ def _normalize_to_rgb_jpeg(path: str) -> str:
         with Image.open(path) as im:
             if im.mode != "RGB":
                 im = im.convert("RGB")
-            im.save(out_path, format="JPEG", quality=92)
+            # im.save(out_path, format="JPEG", quality=92)
         return out_path
     except Exception:
         # Pillow 미설치/변환 실패 시 원본 사용
