@@ -18,14 +18,16 @@
         }
         form {
             background: #222;
-            padding: 2.5em;
+            padding: 1.5em;
             border-radius: 12px;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto 3em auto;
+            align-content: center;
+            text-align: center;
         }
         fieldset {
             border: none;
-            margin-bottom: 3em;
+            margin-bottom: 3.5em;
             padding: 0;
         }
         legend {
@@ -282,14 +284,14 @@
             <label for="runtime_3" class="radio-custom">3시간 이상</label>
         </fieldset>
 
-        <!-- 추가 옵션: 평점 최소값 -->
+        <!-- 3.: 평점 최소값 -->
         <fieldset>
             <legend>3. 최소 평점을 입력해주세요</legend>
             <input type="range" name="min_rating" min="0" max="10" step="0.5" value="5" id="min_rating_slider" oninput="this.nextElementSibling.value = this.value">
             <output>5</output>
         </fieldset>
 
-        <!-- 추가 옵션: 선호하는 영화 언어 (복수 선택 가능) -->
+        <!-- 4. 선호하는 영화 언어 (복수 선택 가능) -->
         <fieldset>
             <legend>4. 선호하는 영화 언어를 선택해주세요 (복수 선택 가능)</legend>
 
@@ -303,10 +305,33 @@
             <label for="lang_ja" class="checkbox-custom">일본어</label>
         </fieldset>
 
+        <!-- 5. 개봉 일자 선택 -->
+        <fieldset>
+            <legend>5. 개봉 연도를 선택하세요 (복수 선택 가능)</legend>
+
+            <!-- <input type="checkbox" id="year_all" name="release_year_range[]" value="all" checked> 
+            <label for="year_all" class="checkbox-custom">전체</label> -->
+
+            <input type="checkbox" id="year_before_2000" name="release_year_range[]" value="before_2000"> 
+            <label for="year_before_2000" class="checkbox-custom">2000년대 이전</label>            
+
+            <input type="checkbox" id="year_2000_2009" name="release_year_range[]" value="2000_2009"> 
+            <label for="year_2000_2009" class="checkbox-custom">2000년대</label>            
+
+            <input type="checkbox" id="year_2010_2019" name="release_year_range[]" value="2010_2019"> 
+            <label for="year_2010_2019" class="checkbox-custom">2010년대</label>
+
+            <input type="checkbox" id="year_2020_2029" name="release_year_range[]" value="2020_2029"> 
+            <label for="year_2020_2029" class="checkbox-custom">2020년대</label>
+        </fieldset>
+
+
         <button type="submit">추천 받기</button>
     </form>
 
-    <!-- 결과 확인 영역-->
+
+    
+    <!-- 결과 확인 영역
     {% if genres %}
     <div class="result-area">
         <h2>선택한 결과</h2>
@@ -319,4 +344,4 @@
     </div>
     {% endif %}
 </body>
-</html>
+</html> -->
