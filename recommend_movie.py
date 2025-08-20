@@ -1,6 +1,7 @@
-import requests
+# recommend_movie.py
 import pandas as pd
 from flask import render_template, request
+from tmdb_helpers import tmdb_get
 
 
 # ======== 1. 장르 한글 ↔ ID 매핑 ========
@@ -12,12 +13,7 @@ genre_dict = {
     "10402": "음악", "9648": "미스터리"
 }
 
-# Modify your TMDB API KEY here
-################################################
-TMDB_API_KEY = "066db65e606a576b241c3ba9050dff3f"  
-################################################
-
-def get_movies(api_key, genre_id=None, runtime_type=None, rating=None, country='ko') -> pd.DataFrame:
+def get_movies(genre_id=None, runtime_type=None, rating=None, country='ko') -> pd.DataFrame:
     """
     특정 장르의 영화 목록을 페이지 범위로 가져오는 함수
     
@@ -28,18 +24,16 @@ def get_movies(api_key, genre_id=None, runtime_type=None, rating=None, country='
     :param genre_id: 장르 ID
     :param count: 최종 반환할 영화 수
     """
-    url = "https://api.themoviedb.org/3/discover/movie"
-    all_movies = []
 
     #### Modify page range here ####
     page_range = 5
 
+    all_movies = []
     # multiple countries processing
     countries = country.split(",") if country else ['ko']
     for country in countries:
         for page_num in range(1, page_range + 1):    
             params = {
-                "api_key": api_key,
                 "with_genres": genre_id,
                 "with_runtime.gte": 60 * runtime_type,  # minimum runtime
                 "with_runtime.lte": 60 * (runtime_type + 1) if runtime_type != 3 else None,  # maximum runtime
@@ -52,14 +46,7 @@ def get_movies(api_key, genre_id=None, runtime_type=None, rating=None, country='
                 "certification_country": "KR",  # 한국 등급 필터링
                 "certification.lte": "15"  # 한국 19금 제외 (ALL/12/15까지만)
             }
-            try:
-                response = requests.get(url, params=params)
-                response.raise_for_status()
-            except requests.exceptions.RequestException as e:
-                print(f"페이지 {page_num} 요청 실패: {e}")
-                continue
-
-            movies_data = response.json()
+            movies_data = tmdb_get('/discover/movie', **params)
             movies = movies_data.get('results', [])
 
             if not movies:
@@ -67,12 +54,6 @@ def get_movies(api_key, genre_id=None, runtime_type=None, rating=None, country='
                 break
 
             all_movies.extend(movies)
-
-    # # count보다 많으면 랜덤 샘플링, 아니면 그대로 반환
-    # # print(f"총 {len(all_movies)}개의 영화가 검색되었습니다.")
-    # if count and len(all_movies) > count:
-    #     all_movies = random.sample(all_movies, count)
-
     return pd.DataFrame(all_movies)  # DataFrame으로 변환하여 반환
 
 
@@ -164,7 +145,6 @@ def get_recommendations():
         country=",".join(languages) if languages else 'ko'
         print(country)  # 'ko,en'
         recommended_movies = get_data(get_movies(
-            api_key=TMDB_API_KEY,
             genre_id=",".join(genres) if genres else None,
             runtime_type= int(runtime) if runtime else 1,
             rating=min_rating if min_rating else 0,
@@ -192,7 +172,5 @@ if __name__ == "__main__":
         input_lang = input("언어 입력 (ko, en, ja):>> ")
         input_runtime = input("영화 길이 범위 입력 (1: 1~2h, 2: 2~3h, 3: 3h 이상):>> ")
         input_genre = input("장르 번호 입력>> ")
-        recommended_movies = get_movies(TMDB_API_KEY, genre_id=input_genre, runtime_type=int(input_runtime), rating=5, country=input_lang)
+        recommended_movies = get_movies(genre_id=input_genre, runtime_type=int(input_runtime), rating=5, country=input_lang)
         recommended_movies = get_data(recommended_movies)
-        # print(rst[0])
-        # print("\n" + "*"*100)
