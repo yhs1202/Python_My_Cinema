@@ -4,11 +4,13 @@ import os
 from flask import Flask, render_template, request, jsonify, session, redirect
 
 # tmdb_helpers에서 얼굴 인식에 필요한 함수를 가져옵니다.
-from tmdb_helpers import * 
-# search_actor에서 검색 로직과 상세 페이지 로직을 가져옵니다.
+from tmdb_helpers import * # search_actor에서 검색 로직과 상세 페이지 로직을 가져옵니다.
 from search_actor import process_actor_search, get_actor_details
 from recommend_movie import *
 from game_helpers import *
+
+# ★★★ 수정된 부분: 함수 이름을 'get_film_festivals_with_selenium'으로 변경 ★★★
+from festival_crawler import get_film_festivals_with_selenium 
 
 if not os.path.exists("static"):
     os.mkdir("static")
@@ -64,6 +66,14 @@ def show_results():
     detailed_answers = get_detailed_movie_list(basic_answers)
     return render_template('game_result.html', movies=detailed_answers)
 
+# ---------------- MOVIE Festival Information SERVICE ----------------
+# 모든 영화제 데이터를 가져와 처리 함수에 넘겨 분류된 결과를 받아 템플릿에 전달
+@app.route("/festivals")
+def festivals_page():
+    all_festivals = get_film_festivals_with_selenium()
+    return render_template("festivals.html", all_festivals=all_festivals)
+
+
 # ---------------- MOVIE RECOMMENDATION SERVICE ----------------
 # 설문 페이지 - GET 요청으로 설문 폼 보여줌
 @app.route("/recommend_mv_survey", methods=["GET"])
@@ -78,4 +88,3 @@ def get_result():
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
-    
