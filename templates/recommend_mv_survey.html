@@ -16,7 +16,7 @@
             margin-bottom: 0.5em;
             font-size: 3em;
         }
-        form {
+        form.survey {
             background: #222;
             padding: 1.5em;
             border-radius: 12px;
@@ -191,12 +191,68 @@
             background: linear-gradient(135deg, #27ae60 0%, #1DB954 100%);
             box-shadow: 0 6px 16px rgba(39, 174, 96, 0.8);
         }
+
+        /* 전용 홈 버튼 스타일: 다른 버튼 스타일과 충돌 없도록 별도 클래스 사용 */
+        .home-btn {
+        all: unset;
+        display: inline-block;
+        background-color: #1DB954;     /* 메인 그린 */
+        color: #121212;                /* 다크 텍스트 */
+        padding: 14px 28px;
+        border-radius: 6px;
+        font-weight: 800;
+        font-size: 24px;
+        border: none;
+        cursor: pointer;
+        user-select: none;
+        text-decoration: none;         /* a 태그로 써도 버튼처럼 보이게 */
+        box-shadow: 0 4px 8px rgba(29,185,84,0.6);
+        transition: background-color .2s ease, color .2s ease, box-shadow .2s ease, transform .05s ease;
+        }
+
+        .home-btn:hover {
+        background-color: #27ae60;
+        color: #121212;
+        box-shadow: 0 6px 12px rgba(39,174,96,0.8);
+        }
+
+        .home-btn:active {
+        transform: translateY(1px);    /* 눌림 느낌 */
+        }
+
+        /* 제목 왼쪽에 딱 고정해서 평행 배치하고 싶을 때 사용하는 헬퍼 레이아웃 */
+        .header-with-left-btn {
+        position: relative;
+        display: flex;
+        justify-content: center;   /* h1을 가운데 */
+        align-items: center;
+        margin-bottom: 1em;
+        }
+
+        .header-with-left-btn .home-btn {
+        position: absolute;
+        left: 0;                   /* 컨테이너의 가장 왼쪽 */
+        top: 50%;
+        transform: translateY(-50%);
+        }
+
+        /* 다크 테마에 자연스럽게 어울리도록 포커스 스타일 */
+        .home-btn:focus-visible {
+        outline: 2px solid #1DB954;
+        outline-offset: 3px;
+        box-shadow: 0 0 0 4px rgba(29,185,84,0.25);
+        }
+
     </style>
 </head>
 <body>
-    <h1>넷플릭스 산책 끝. 목적지 직행할 영화 한 편... 뭐로 할래?</h1>
+    <div class="header-with-left-btn">
+        <button class="home-btn" onclick="location.href='{{ url_for('index') }}'">홈으로</button>
+        <h1>넷플릭스 산책 끝. 목적지 직행할 영화 한 편... 뭐로 할래?</h1>
+    </div>
+
     <!-- 당신이 원하는 영화는 어떤 영화인가요 -->
-    <form method="POST" action="/recommend_mv">
+    <form class="survey" method="POST" action="/recommend_mv">
         <!-- 1단계: 장르 선택 (중복 선택 가능) -->
         <fieldset>
             <legend>1. 장르 선택 (복수 선택 가능) — 직감 ON, 망설임 OFF</legend>
