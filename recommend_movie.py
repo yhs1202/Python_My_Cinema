@@ -5,15 +5,6 @@ from tmdb_helpers import tmdb_get
 import random
 
 
-# ======== 1. 장르 한글 ↔ ID 매핑 ========
-genre_dict = {
-    "28": "액션", "12": "모험", "16": "애니메이션", "35": "코미디",
-    "80": "범죄", "99": "다큐멘터리", "18": "드라마", "10751": "가족",
-    "27": "공포", "10749": "로맨스", "878": "SF", "53": "스릴러",
-    "10752": "전쟁", "37": "서부", "14": "판타지", "36": "역사",
-    "10402": "음악", "9648": "미스터리"
-}
-
 def build_release_date_filter(year_type: int) -> dict:
     """
     TMDb API VALUE 생성 위한 개봉 날짜 범위 생성 함수 (dict)
@@ -77,8 +68,10 @@ def get_movies(genre_id=None, runtime_type=None, release_year_type_list=[0], rat
     all_movies = []
     # multiple countries processing
     countries = country.split(",") if country else ['ko']
-    if len(release_year_type_list) == 4:
-        release_year_type_list = [0]
+    # if all year types are selected,
+    # build_release_date_filter will return empty dict (No constraints)
+    if len(release_year_type_list) == 4:    
+        release_year_type_list = [0]    
     for release_year_type in release_year_type_list:
         for country in countries:
             for page_num in range(1, page_range + 1):    
@@ -105,6 +98,9 @@ def get_movies(genre_id=None, runtime_type=None, release_year_type_list=[0], rat
 
 
 def get_data(df: pd.DataFrame)-> list:
+    """
+    DataFrame에서 필요한 컬럼을 추출하고, 형식을 맞춰서 영화 정보를 반환하는 함수
+    """
     col_list = [
     'backdrop_path',        # concatenated with 'https://image.tmdb.org/t/p/w1280' (string)
     'genre_ids',            # list of genre name which in genre_dict (list of string, e.g., ['판타지', '역사', '액션'])
@@ -128,6 +124,13 @@ def get_data(df: pd.DataFrame)-> list:
         lambda x: base_url + x if x else "/no_image.png"
     )
     # Map genre IDs to names using genre_dict
+    genre_dict = {
+    "28": "액션", "12": "모험", "16": "애니메이션", "35": "코미디",
+    "80": "범죄", "99": "다큐멘터리", "18": "드라마", "10751": "가족",
+    "27": "공포", "10749": "로맨스", "878": "SF", "53": "스릴러",
+    "10752": "전쟁", "37": "서부", "14": "판타지", "36": "역사",
+    "10402": "음악", "9648": "미스터리"
+    }
     df['genre_ids'] = df['genre_ids'].apply(
         lambda lst: [genre_dict.get(str(gid)) for gid in lst if str(gid) in genre_dict]
     )
@@ -172,11 +175,14 @@ def get_data(df: pd.DataFrame)-> list:
     return movies
 
 def get_recommendations():
+    """
+    Flask route to handle movie recommendations based on user input
+    """
     if request.method == 'POST':
         genres      = request.form.getlist('genres')
-        #adult       = request.form.get('adult')
+        # adult       = request.form.get('adult')
         runtime     = request.form.get('runtime')
-        year_types   = request.form.getlist('release_year_range')
+        year_types  = request.form.getlist('release_year_range')
         min_rating  = float(request.form.get('min_rating'))
         languages   = request.form.getlist('languages')
 
@@ -209,8 +215,7 @@ def get_recommendations():
             country         = ",".join(languages) if languages else 'ko'
         ))
 
-        return render_template(
-                               'recommend_mv.html',
+        return render_template('recommend_mv.html',
                                genres=genres,
                                runtime=runtime,
                                min_rating=min_rating,
