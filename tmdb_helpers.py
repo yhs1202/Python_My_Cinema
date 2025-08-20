@@ -54,11 +54,11 @@ def _normalize_to_rgb_jpeg(path: str) -> str:
     """업로드 이미지를 RGB JPEG로 정규화 (HEIC/CMYK 대비). 실패하면 원본 경로 반환."""
     try:
         from PIL import Image
-        out_path = path + ".rgb.jpg"
+        out_path = path.split(".")[0] + "_processing.jpg"
         with Image.open(path) as im:
             if im.mode != "RGB":
                 im = im.convert("RGB")
-            # im.save(out_path, format="JPEG", quality=92)
+            im.save(out_path, format="JPEG", quality=92)
         return out_path
     except Exception:
         # Pillow 미설치/변환 실패 시 원본 사용
@@ -84,6 +84,11 @@ def process_celeb_face():
     # 3) AWS Rekognition 유명인 인식
     try:
         celeb_info_from_aws = recognize_celebrities(save_path)
+
+        # remove the saved file after processing
+        if os.path.exists(save_path):
+            os.remove(save_path)
+
     except Exception as e:
         return jsonify({"result": "error", "message": f"recognize_celebrities crashed: {e}"}), 500
 

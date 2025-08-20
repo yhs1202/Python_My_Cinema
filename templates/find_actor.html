@@ -178,7 +178,7 @@
                 video.srcObject = stream;
             } catch (err) {
                 console.error("카메라 접근 오류:", err);
-                alert("카메라를 사용할 수 없습니다. 권한을 확인해주세요.");
+                alert(err.message || "카메라를 사용할 수 없습니다. 브라우저 설정을 확인해주세요.");
             }
         }
 
