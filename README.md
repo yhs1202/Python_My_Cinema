@@ -39,6 +39,7 @@ It provides 4 main features via a web UI:
 
 ### 3) 배우검색 (Actor Search)
 - 배우명으로 검색하여 기본 프로필 및 대표작(필모그래피)을 보여줍니다.
+-
 - 주요 모듈: `search_actor.py`, `tmdb_helpers.py`
 
   ![3](/static/readme_img/3_find_actor_example.png)
@@ -47,6 +48,7 @@ It provides 4 main features via a web UI:
 - TMDb 데이터로 간단한 퀴즈/맞히기 게임을 구성합니다.
 - 주요 모듈: `movie_game_app.py`, `game_helpers.py`
 - 예: 포스터만 보고 개봉 순서로 맞추기 (1 to 9 Game)
+- 예2: 감독 또는 배우 검색 후 진짜와 가짜 작품 맞추기
 
   ![4](/static/readme_img/4_game_example.png)
 ---
@@ -115,6 +117,10 @@ python app.py
 - **Dependencies**: boto3
 
 ### `tmdb_helpers.py`
+- TMDB API 요청(`tmdb_get`)
+- API 응답(배우 필모그래피)을 프론트엔드 표시용 데이터로 가공
+- 이미지 분석부터 정보 조회까지 유명인 인식 기능의 전체 흐름 제어
+- **Dependencies**: requests, Flask, Pillow
 
 ### `recommend_movie.py`
 - Discover/Recommendations 파라미터 구성: `with_genres`, `with_origin_country`,
@@ -127,13 +133,22 @@ python app.py
 - **Dependencies**: pandas, requests
 
 ### `search_actor.py`
-  <!-- Type Here -->
+- 배우 검색(이름/출연작) 및 성별/나이/데뷔 연도 조건 필터링
+- 필터링된 배우 검색 결과를 JSON 형식으로 반환 (`process_actor_search`)
+- 특정 배우의 상세 정보를 HTML 페이지로 렌더링 (`get_actor_details`)
+- **Dependencies**: Flask
 
 ### `movie_game_app.py`
-  <!-- Type Here -->
+- TMDB API 호출로 게임용 영화 목록 및 포스터 로드 (`get_popular_movies`)
+- 퀴즈 게임의 메인 로직을 구현
+- PyQt5를 사용하여 게임 UI를 구성하고 이벤트를 처리
+- **Dependencies**: PyQt5, requests, python-dotenv
 
 ### `game_helpers.py`
-  <!-- Type Here -->
+- 두 가지 게임 모드(순서 맞추기, 진짜/가짜 찾기)의 백엔드 로직 처리
+- 연령 등급 필터링(대체 호출 포함) 및 배우 국적 분석으로 게임 데이터 생성
+- Flask 세션을 이용한 게임 정답 저장 및 관리
+- **Dependencies**: Flask, requests, python-dotenv
 
 
 
