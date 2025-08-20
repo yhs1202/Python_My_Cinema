@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Game Results</title>
+    <style>
+        body { text-align: center; background: linear-gradient(180deg, #0d0d1a, #050509); color: #e0e0e0; font-family: 'Arial', sans-serif; padding: 20px; }
+        h1, h2 { color: #d4af37; text-shadow: 0 0 8px rgba(212, 175, 55, 0.6); }
+        
+        /* --- 여기가 수정된 부분입니다 --- */
+        .results-container { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 25px; 
+            max-width: 1000px; /* 👈 너비 확장 */
+            margin: 40px auto; 
+        }
+        .movie-card {
+            background-color: #1f1f2e;
+            border-radius: 8px;
+            width: 160px; /* 👈 너비 조정 */
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        /* --- 여기까지 수정 --- */
+
+        .movie-card img { width: 100%; border-radius: 8px 8px 0 0; }
+        .movie-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column;}
+        .movie-info h3 { font-size: 16px; margin: 0 0 10px; color: #f0f0f0; }
+        .movie-info p { font-size: 12px; color: #cccccc; margin: 3px 0; line-height: 1.4; }
+        .movie-info p.overview { 
+            font-size: 11px;
+            color: #a0a0a0;
+            margin-top: 10px;
+            flex-grow: 1; /* 남는 공간을 모두 차지하도록 설정 */
+            overflow: hidden;
+        }
+        .info-label { font-weight: bold; color: #d4af37; }
+        .btn-home { display: inline-block; margin-top: 20px; margin-right: 10px; padding: 12px 25px; background-color: #d4af37; color: #0d0d1a; text-decoration: none; font-weight: bold; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>게임 결과</h1>
+    <h2>정답 목록</h2>
+    <div class="results-container">
+        {% for movie in movies %}
+        <div class="movie-card">
+            <img src="https://image.tmdb.org/t/p/w200{{ movie.poster_path if movie.poster_path else '' }}">
+            <div class="movie-info">
+                <h3>{{ movie.title }} ({{ movie.release_date[:4] }})</h3>
+                <p><span class="info-label">⭐ 평점:</span> {{ movie.vote_average }}</p>
+                <p><span class="info-label">🎬 감독:</span> {{ movie.director }}</p>
+                <p><span class="info-label">🎭 출연:</span> {{ movie.cast|join(', ') }}</p>
+                <p><span class="info-label">📁 장르:</span> {{ movie.genres|join(', ') }}</p>
+                <p class="overview">{{ movie.overview }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <a href="/game" class="btn-home">다시하기</a>
+    <a href="/" class="btn-home">메인으로</a>
+</body>
+</html>

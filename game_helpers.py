@@ -1,31 +1,42 @@
 import os
 import requests
 import random
+from collections import Counter
 from dotenv import load_dotenv
-from flask import jsonify
+from flask import jsonify, request, session
 
-# .env 파일에서 환경 변수(API 키)를 로드합니다.
 load_dotenv()
 
-def get_popular_movies():
-    """TMDB API를 사용해 인기 영화 목록 9개를 안전하게 가져오는 함수"""
+# --- 헬퍼 함수 ---
+
+def get_popular_movies(page=None, country_code=None):
+    """
+    TMDB API로 인기 영화 목록을 가져오는 함수.
+    대한민국 등급 기준 '청소년 관람불가' 영화를 제외합니다.
+    """
     api_key = os.getenv("TMDB_API_KEY")
     if not api_key:
-        print("오류: TMDB_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
+        print("오류: TMDB_API_KEY가 설정되지 않았습니다.")
         return None
 
-    random_page = random.randint(1, 10)
+    request_page = page if page else random.randint(1, 10)
+
     url = (f"https://api.themoviedb.org/3/discover/movie?"
            f"api_key={api_key}"
            f"&language=ko-KR"
            f"&sort_by=popularity.desc"
-           f"&page={random_page}"
-           f"&with_watch_monetization_types=flatrate")
+           f"&page={request_page}"
+           f"&include_adult=false"
+           f"&certification_country=KR"
+           f"&certification.lte=15")
+
+    if country_code:
+        url += f"&with_origin_country={country_code}"
 
     try:
         response = requests.get(url)
         response.raise_for_status()
-        data = response.json()['results']
+        data = response.json().get('results', [])
         
         movies = []
         for movie in data:
@@ -39,29 +50,157 @@ def get_popular_movies():
             if len(movies) == 9:
                 break
         
-        return movies if len(movies) == 9 else None
+        if len(movies) < 9:
+            print(f"경고: 연령 등급 필터링 결과가 부족하여, 필터 없이 다시 요청합니다.")
+            url_fallback = url.replace(f"&certification_country=KR", "").replace(f"&certification.lte=15", "")
+            response_fallback = requests.get(url_fallback)
+            response_fallback.raise_for_status()
+            data_fallback = response_fallback.json().get('results', [])
+            
+            existing_ids = {m['id'] for m in movies}
+            for movie in data_fallback:
+                if len(movies) >= 9: break
+                if movie.get('poster_path') and movie.get('release_date') and movie['id'] not in existing_ids:
+                    movies.append({ 'id': movie['id'], 'title': movie['title'], 'poster_path': movie['poster_path'], 'release_date': movie['release_date'] })
+
+        return movies
 
     except requests.exceptions.RequestException as e:
         print(f"API 요청 중 오류가 발생했습니다: {e}")
         return None
 
-def process_game_movies():
-    """
-    게임용 영화 목록을 가져와서 API 응답 형식(JSON)으로 만드는 함수
-    """
-    # 1. 영화 데이터 가져오기
-    movies = get_popular_movies()
+def search_person(name):
+    """이름으로 배우/감독 검색"""
+    api_key = os.getenv("TMDB_API_KEY")
+    url = f"https://api.themoviedb.org/3/search/person?api_key={api_key}&language=ko-KR&query={name}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        results = response.json()['results']
+        return results[0]['id'] if results else None
+    except requests.exceptions.RequestException:
+        return None
 
-    # 2. 성공/실패에 따라 다른 JSON 응답 생성
+def get_person_details(person_id):
+    """사람 ID로 상세 정보(주요 분야 포함)와 영화 목록 전체를 반환합니다."""
+    api_key = os.getenv("TMDB_API_KEY")
+    url = f"https://api.themoviedb.org/3/person/{person_id}?api_key={api_key}&language=ko-KR&append_to_response=movie_credits"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"인물 상세 정보 조회 중 오류: {e}")
+        return None
+
+def get_country_from_movies(movie_ids):
+    """다수의 영화 ID를 받아 가장 빈도가 높은 제작 국가 코드를 찾아냅니다."""
+    api_key = os.getenv("TMDB_API_KEY")
+    countries = []
+    for movie_id in movie_ids[:5]:
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}"
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
+            if data.get('production_countries'):
+                countries.append(data['production_countries'][0]['iso_3166_1'])
+        except requests.exceptions.RequestException:
+            continue
+            
+    return Counter(countries).most_common(1)[0][0] if countries else None
+
+def get_detailed_movie_list(movies):
+    """기본 영화 정보 목록을 받아, 각 영화의 상세 정보를 TMDB에서 가져와 반환합니다."""
+    api_key = os.getenv("TMDB_API_KEY")
+    detailed_movies = []
+    for movie in movies:
+        movie_id = movie.get('id')
+        if not movie_id or not api_key: continue
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=ko-KR&append_to_response=credits"
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
+            director = next((crew['name'] for crew in data.get('credits', {}).get('crew', []) if crew['job'] == 'Director'), "정보 없음")
+            cast = [actor['name'] for actor in data.get('credits', {}).get('cast', [])[:3]]
+            genres = [genre['name'] for genre in data.get('genres', [])]
+            detailed_movies.append({'title': data.get('title'),'poster_path': data.get('poster_path'),'release_date': data.get('release_date'),'overview': data.get('overview', '줄거리 정보가 없습니다.')[:100] + "...",'vote_average': round(data.get('vote_average', 0), 1),'director': director,'cast': cast,'genres': genres})
+        except requests.exceptions.RequestException as e:
+            print(f"영화 상세 정보(ID: {movie_id}) 조회 중 오류: {e}")
+            continue
+    return detailed_movies
+
+# --- 요청 처리 함수 ---
+
+def process_game_movies():
+    """Mode 1 요청 처리 및 세션에 정답 저장"""
+    movies = get_popular_movies()
     if movies:
-        # 성공 시
-        return jsonify({
-            "result": "success",
-            "movies": movies
-        })
+        correct_answers = sorted(movies, key=lambda x: x['release_date'])
+        session['correct_answers'] = correct_answers
+        return jsonify({"result": "success", "movies": movies})
     else:
-        # 실패 시
-        return jsonify({
-            "result": "error",
-            "message": "Failed to load movies"
-        }), 500 # HTTP 상태 코드 500 (Internal Server Error)
+        return jsonify({"result": "error", "message": "Failed to load movies"}), 500
+
+def process_person_game_request(name, real_count=5):
+    """Mode 2 요청 처리 (배우/감독 역할 구분 로직 적용)"""
+    person_id = search_person(name)
+    if not person_id:
+        return jsonify({"result": "error", "message": f"'{name}'을(를) 찾을 수 없습니다."}), 404
+
+    person_data = get_person_details(person_id)
+    if not person_data:
+        return jsonify({"result": "error", "message": f"'{name}'의 상세 정보를 가져올 수 없습니다."}), 404
+    
+    department = person_data.get('known_for_department')
+    movie_credits = person_data.get('movie_credits', {})
+    
+    # 최종적으로 사용할 정답 후보 영화 목록
+    final_movie_list = []
+
+    if department == 'Acting':
+        print(f"'{name}'은(는) 배우입니다. 출연작을 우선으로 검색합니다.")
+        final_movie_list = movie_credits.get('cast', [])
+    elif department == 'Directing':
+        print(f"'{name}'은(는) 감독입니다. 연출작을 우선으로 검색합니다.")
+        final_movie_list = [m for m in movie_credits.get('crew', []) if m.get('job') == 'Director']
+    else:
+        print(f"'{name}'의 주요 분야({department})에 따라 전체 참여작을 검색합니다.")
+        final_movie_list = movie_credits.get('cast', []) + movie_credits.get('crew', [])
+
+    if not final_movie_list:
+        return jsonify({"result": "error", "message": f"'{name}'의 대표 영화 정보를 찾을 수 없습니다."}), 404
+        
+    movie_ids_from_person = [credit['id'] for credit in final_movie_list if credit.get('id')]
+    origin_country = get_country_from_movies(movie_ids_from_person)
+
+    unique_real_movies = list({movie['id']: movie for movie in final_movie_list if movie.get('poster_path')}.values())
+    random.shuffle(unique_real_movies)
+    real_answers = unique_real_movies[:real_count]
+    for movie in real_answers:
+        movie['is_real'] = True
+    
+    session['correct_answers'] = real_answers
+
+    fake_count = 9 - len(real_answers)
+    if fake_count > 0:
+        fake_movies = get_popular_movies(page=random.randint(1, 10), country_code=origin_country)
+        real_movie_ids = {m['id'] for m in real_answers}
+        fake_movies_filtered = [m for m in fake_movies if m['id'] not in real_movie_ids] if fake_movies else []
+        for movie in fake_movies_filtered:
+            movie['is_real'] = False
+        game_list = real_answers + fake_movies_filtered[:fake_count]
+    else:
+        game_list = real_answers[:9]
+
+    random.shuffle(game_list)
+    return jsonify({"result": "success", "movies": game_list, "person_name": name, "real_movie_count": len(real_answers)})
+
+def handle_person_game_request():
+    """Mode 2 웹 요청 처리"""
+    person_name = request.args.get('name')
+    if not person_name:
+        return jsonify({"result": "error", "message": "이름을 입력해주세요."}), 400
+    return process_person_game_request(person_name)

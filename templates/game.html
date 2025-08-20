@@ -2,81 +2,362 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Oldest Movie Game</title>
+    <title>Movie Game</title>
     <style>
-        /* PyQt5 게임과 유사한 스타일 꾸미기 */
-        body { text-align: center; background-color: #0d0d1a; color: #e0e0e0; }
-        h1 { color: #d4af37; }
-        #game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 450px; margin: auto; }
-        .movie-poster { width: 130px; cursor: pointer; border-radius: 8px; border: 2px solid transparent; }
-        .movie-poster:hover { border-color: #d4af37; }
-        .disabled { opacity: 0.3; cursor: not-allowed; }
+        /* 기본 스타일 */
+        body { 
+            text-align: center; 
+            background: linear-gradient(180deg, #0d0d1a, #050509); 
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 { 
+            color: #d4af37; 
+            text-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+        }
+
+        /* 게임 설정 UI */
+        #game-setup { 
+            margin: 20px 0; 
+            padding: 20px;
+            background-color: #1a1a1a;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .btn-mode { 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            margin: 0 10px; 
+            cursor: pointer; 
+            background-color: #d4af37;
+            border: none;
+            border-radius: 8px;
+            color: #0d0d1a;
+            font-weight: bold;
+        }
+        .btn-mode:hover {
+            background-color: #f0c962;
+        }
+        #person-name-input { 
+            padding: 10px; 
+            font-size: 16px; 
+            border-radius: 8px;
+            border: 1px solid #d4af37;
+            background-color: #333;
+            color: #e0e0e0;
+        }
+
+        /* 라이프 UI 스타일 */
+        #lives-container { 
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            height: 40px;
+        }
+        .life-heart {
+            color: #ff4757;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+        .life-heart.lost {
+            color: #555;
+            opacity: 0.5;
+        }
+
+        /* 프로그레스 바 스타일 */
+        .progress-container {
+            max-width: 450px;
+            width: 90%;
+            height: 20px;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            margin: 0 auto 20px auto;
+            border: 2px solid #555;
+            display: none; /* 평소에는 숨김 */
+        }
+        .progress-bar {
+            width: 0%; /* 시작은 0% */
+            height: 100%;
+            background-color: #d4af37;
+            border-radius: 8px;
+            transition: width 0.5s ease-in-out; /* 부드러운 애니메이션 효과 */
+        }
+
+        /* 게임 그리드 */
+        #game-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; 
+            max-width: 450px; 
+            margin: 20px auto; 
+        }
+        .movie-poster { 
+            width: 100%; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            border: 3px solid transparent; 
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+        .movie-poster:hover { 
+            border-color: #d4af37;
+            transform: scale(1.05);
+        }
+        
+        /* 상태 표시 클래스 */
+        .disabled { 
+            opacity: 0.3; 
+            cursor: not-allowed; 
+            transform: scale(1);
+        }
+        .correct { 
+            border-color: #28a745 !important;
+        }
+        .incorrect { 
+            border-color: #dc3545 !important;
+        }
+        .missed-answer {
+            border-color: #28a745 !important;
+            opacity: 0.8;
+            box-shadow: 0 0 15px #28a745;
+        }
+        #retry-button {
+            display: none;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>Find the Oldest Movie!</h1>
-    <h2 id="info-text">Loading...</h2>
+    <h1 id="game-title">Select Game Mode!</h1>
+
+    <div id="game-setup">
+        <button class="btn-mode" id="start-mode1">개봉 순서 맞추기</button>
+        <button class="btn-mode" id="start-mode2-setup">필모그래피 찾기</button>
+        <div id="mode2-input-area" style="display:none; margin-top:15px;">
+            <input type="text" id="person-name-input" placeholder="배우/감독 이름 입력">
+            <button class="btn-mode" id="start-mode2-game">게임 시작</button>
+        </div>
+    </div>
+
+    <div id="lives-container"></div>
+    <div class="progress-container">
+        <div class="progress-bar" id="game-progress-bar"></div>
+    </div>
+    <h2 id="info-text"></h2>
     <div id="game-grid"></div>
+    <button class="btn-mode" id="retry-button">다시 도전하기</button>
 
     <script>
-        // 이 안에 JavaScript 게임 로직을 작성합니다.
-        document.addEventListener('DOMContentLoaded', () => {
-            const gameGrid = document.getElementById('game-grid');
-            const infoText = document.getElementById('info-text');
-            let correctSequence = [];
-            let currentStep = 0;
-            let startTime;
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DOM 요소 가져오기 ---
+        const gameGrid = document.getElementById('game-grid');
+        const infoText = document.getElementById('info-text');
+        const gameTitle = document.getElementById('game-title');
+        const livesContainer = document.getElementById('lives-container');
+        const retryButton = document.getElementById('retry-button');
+        const progressBar = document.getElementById('game-progress-bar');
+        const progressContainer = progressBar.parentElement;
+        
+        const mode1Btn = document.getElementById('start-mode1');
+        const mode2SetupBtn = document.getElementById('start-mode2-setup');
+        const mode2InputArea = document.getElementById('mode2-input-area');
+        const personNameInput = document.getElementById('person-name-input');
+        const mode2GameBtn = document.getElementById('start-mode2-game');
 
-            // 1. 서버(Flask API)에서 영화 데이터를 가져옵니다.
-            async function startGame() {
-                const response = await fetch('/api/game-movies');
-                const data = await response.json();
+        // --- 게임 변수 ---
+        const MAX_LIVES = 3;
+        let lives = MAX_LIVES;
+        let startTime;
+        let lastPlayedMode = null;
 
-                if (data.result === 'success') {
-                    const movies = data.movies;
-                    // 2. 정답 순서(개봉일순)와 화면 표시 순서(랜덤)를 만듭니다.
-                    correctSequence = [...movies].sort((a, b) => a.release_date.localeCompare(b.release_date));
-                    const shuffledMovies = [...movies].sort(() => Math.random() - 0.5);
-                    
-                    startTime = Date.now();
-                    infoText.textContent = `Click the Oldest Movie! (1/9)`;
-                    
-                    // 3. 영화 포스터를 화면에 그립니다.
-                    shuffledMovies.forEach(movie => {
-                        const img = document.createElement('img');
-                        img.src = `https://image.tmdb.org/t/p/w200${movie.poster_path}`;
-                        img.dataset.movieId = movie.id; // 이미지에 영화 ID 저장
-                        img.classList.add('movie-poster');
-                        img.onclick = handlePosterClick;
-                        gameGrid.appendChild(img);
-                    });
-                } else {
-                    infoText.textContent = "게임을 불러오는 데 실패했습니다.";
+        // --- 공용 함수 ---
+        function updateLivesUI() {
+            livesContainer.innerHTML = '';
+            for (let i = 0; i < MAX_LIVES; i++) {
+                const heart = document.createElement('span');
+                heart.textContent = '🎬';
+                heart.classList.add('life-heart');
+                if (i >= lives) {
+                    heart.classList.add('lost');
                 }
+                livesContainer.appendChild(heart);
             }
-
-            // 4. 포스터 클릭 이벤트 처리
-            function handlePosterClick(event) {
-                const clickedMovieId = parseInt(event.target.dataset.movieId);
-                
-                // 5. 정답 확인
-                if (clickedMovieId === correctSequence[currentStep].id) {
-                    event.target.classList.add('disabled'); // 맞춘 포스터 비활성화
-                    event.target.onclick = null; // 클릭 이벤트 제거
-                    currentStep++;
-                    
-                    if (currentStep === 9) {
-                        const record = (Date.now() - startTime) / 1000;
-                        infoText.textContent = `Success! Record: ${record.toFixed(2)} Sec`;
-                    } else {
-                        infoText.textContent = `Correct! (${currentStep + 1}/9)`;
+        }
+        
+        function disableAllPosters() {
+            const posters = document.querySelectorAll('.movie-poster');
+            posters.forEach(poster => {
+                if (poster.dataset.movie) {
+                    const movieData = JSON.parse(poster.dataset.movie);
+                    if (currentStep < 9 && movieData.id === correctSequence[currentStep].id) {
+                        poster.classList.add('missed-answer');
                     }
+                }
+                if (poster.dataset.isReal === 'true' && !poster.classList.contains('correct')) {
+                    poster.classList.add('missed-answer');
+                }
+                poster.onclick = null;
+                if (!poster.classList.contains('correct') && !poster.classList.contains('missed-answer')) {
+                     poster.classList.add('disabled');
+                }
+            });
+        }
+
+        function resetGame() {
+            gameGrid.innerHTML = '';
+            infoText.textContent = '';
+            mode2InputArea.style.display = 'none';
+            retryButton.style.display = 'none';
+            lives = MAX_LIVES;
+            updateLivesUI();
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+        }
+
+        // --- 모드 선택 및 재시도 이벤트 리스너 ---
+        mode1Btn.onclick = startGameMode1;
+        mode2SetupBtn.onclick = () => { mode2InputArea.style.display = 'block'; personNameInput.focus(); };
+        mode2GameBtn.onclick = startGameMode2;
+        personNameInput.addEventListener('keyup', (event) => { if (event.key === 'Enter') startGameMode2(); });
+        retryButton.onclick = () => {
+            if (lastPlayedMode === 1) {
+                startGameMode1();
+            } else if (lastPlayedMode === 2) {
+                gameTitle.textContent = 'Select Game Mode!';
+                resetGame();
+                mode2InputArea.style.display = 'block';
+                personNameInput.focus();
+            }
+        };
+
+        // --- MODE 1: Oldest First ---
+        let correctSequence = [];
+        let currentStep = 0;
+        async function startGameMode1() {
+            lastPlayedMode = 1;
+            resetGame();
+            gameTitle.textContent = "Find the Oldest Movie!";
+            infoText.textContent = 'Loading...';
+            
+            const response = await fetch('/api/game-movies');
+            const data = await response.json();
+
+            if (data.result === 'success') {
+                progressContainer.style.display = 'block';
+                const movies = data.movies;
+                correctSequence = [...movies].sort((a, b) => a.release_date.localeCompare(b.release_date));
+                const shuffledMovies = [...movies].sort(() => Math.random() - 0.5);
+                startTime = Date.now();
+                currentStep = 0;
+                infoText.textContent = `Click the Oldest Movie!`;
+                shuffledMovies.forEach(movie => {
+                    const img = document.createElement('img');
+                    img.src = `https://image.tmdb.org/t/p/w200${movie.poster_path}`;
+                    img.dataset.movie = JSON.stringify(movie);
+                    img.classList.add('movie-poster');
+                    img.onclick = handleMode1Click;
+                    gameGrid.appendChild(img);
+                });
+            } else {
+                infoText.textContent = data.message;
+            }
+        }
+        function handleMode1Click(event) {
+            if (lives <= 0) return;
+            const img = event.target;
+            const clickedMovie = JSON.parse(img.dataset.movie);
+
+            if (clickedMovie.id === correctSequence[currentStep].id) {
+                img.classList.add('disabled');
+                img.onclick = null;
+                currentStep++;
+                const progressPercent = (currentStep / 9) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+                if (currentStep === 9) {
+                    const record = (Date.now() - startTime) / 1000;
+                    infoText.textContent = `Success! Record: ${record.toFixed(2)} Sec 🎉`;
+                    gameTitle.textContent = "Clear!";
+                    setTimeout(() => { window.location.href = '/results'; }, 1500);
                 } else {
-                    infoText.textContent = "Wrong! Try again.";
+                    infoText.textContent = `Correct!`;
+                }
+            } else {
+                infoText.textContent = "Wrong! Try again.";
+                lives--;
+                updateLivesUI();
+                if (lives <= 0) {
+                    infoText.textContent = "💔 Game Over 💔";
+                    disableAllPosters();
+                    retryButton.style.display = 'inline-block';
                 }
             }
-            startGame();
-        });
+        }
+
+        // --- MODE 2: Find Real Movies ---
+        let realMoviesCount = 0;
+        let correctClicks = 0;
+        async function startGameMode2() {
+            lastPlayedMode = 2;
+            resetGame();
+            const name = personNameInput.value.trim();
+            if (!name) { alert('이름을 입력해주세요!'); return; }
+            infoText.textContent = `Searching for '${name}'...`;
+            
+            const response = await fetch(`/api/game-movies-person?name=${encodeURIComponent(name)}`);
+            const data = await response.json();
+
+            if (data.result === 'success') {
+                progressContainer.style.display = 'block';
+                const movies = data.movies;
+                realMoviesCount = data.real_movie_count;
+                correctClicks = 0;
+                gameTitle.textContent = `'${data.person_name}'의 진짜 영화를 찾아라!`;
+                infoText.textContent = realMoviesCount > 0 ? `총 ${realMoviesCount}개의 진짜 영화를 모두 클릭하세요.` : `이 분의 영화 데이터가 충분하지 않네요. 다른 인물을 검색해보세요.`;
+                movies.forEach(movie => {
+                    const img = document.createElement('img');
+                    img.src = `https://image.tmdb.org/t/p/w200${movie.poster_path}`;
+                    img.dataset.isReal = movie.is_real;
+                    img.classList.add('movie-poster');
+                    img.onclick = handleMode2Click;
+                    gameGrid.appendChild(img);
+                });
+            } else {
+                infoText.textContent = data.message;
+            }
+        }
+        function handleMode2Click(event) {
+            if (lives <= 0) return;
+            const img = event.target;
+            const isReal = img.dataset.isReal === 'true';
+            img.onclick = null;
+
+            if (isReal) {
+                img.classList.add('correct');
+                correctClicks++;
+                if (realMoviesCount > 0) {
+                    const progressPercent = (correctClicks / realMoviesCount) * 100;
+                    progressBar.style.width = `${progressPercent}%`;
+                }
+                infoText.textContent = `정답!`;
+            } else {
+                img.classList.add('incorrect');
+                infoText.textContent = "땡! 그 영화는 아닙니다.";
+                lives--;
+                updateLivesUI();
+                if (lives <= 0) {
+                    infoText.textContent = "💔 Game Over 💔";
+                    disableAllPosters();
+                    retryButton.style.display = 'inline-block';
+                }
+            }
+            if (realMoviesCount > 0 && correctClicks === realMoviesCount) {
+                infoText.textContent = `성공! 모든 진짜 영화를 찾았습니다! 🎉`;
+                gameTitle.textContent = "Clear!";
+                setTimeout(() => { window.location.href = '/results'; }, 1500);
+            }
+        }
+    });
     </script>
 </body>
 </html>

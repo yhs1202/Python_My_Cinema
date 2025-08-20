@@ -100,7 +100,7 @@ def nate_news_search(query):
             return []
 
         # 상위 3개 기사만 가져오기
-        for article in articles[:6]:
+        for article in articles[:11]:
             try:
                 anchor = article.select_one('a')
                 if not anchor:
