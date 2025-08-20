@@ -123,6 +123,7 @@ def get_data(df: pd.DataFrame)-> list:
     movies = []
     for _, row in df.iterrows():
         movie = {
+            "id": row['id'],
             "title": row['title'],
             "genre": ", ".join(row['genre_ids']),
             "rating": row['vote_average'],

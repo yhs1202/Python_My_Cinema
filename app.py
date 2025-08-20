@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect
 
 # tmdb_helpers에서 얼굴 인식에 필요한 함수를 가져옵니다.
 from tmdb_helpers import * 
@@ -62,6 +62,7 @@ def recommend_mv_survey():
 @app.route("/recommend_mv", methods=["POST"])
 def get_result():
     return get_recommendations()
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
