@@ -260,6 +260,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="header-with-left-btn">
     <button class="home-btn" onclick="location.href='{{ url_for('index') }}'">홈으로</button>
@@ -269,10 +270,10 @@
   <form class="survey" method="POST" action="/recommend_mv">
     <!-- 1단계: 장르 선택 (중복 선택 가능) -->
     <fieldset>
-      <legend>1. 장르 선택 (복수 선택 가능) — 직감 ON, 망설임 OFF 
-        <input type="checkbox" id="genre_or" name="genre_or" value="false" style="display: none;">
-        <button type="button" class="checkbox-custom" oneclick="document.getElementById('genre_or').value = 'true'; this.form.submit();">OR</button>
-      </legend>
+      <legend>1. 장르 선택 (복수 선택 가능) — 직감 ON, 망설임 OFF</legend>
+      <input type="checkbox" id="genre_or" name="genre_or" style="display: none;">
+      <label for="genre_or" id="genre_or_label" class="checkbox-custom" style="cursor: pointer;">OR</label>
+      <br></br>
 
       <input type="checkbox" id="genre28" name="genres" value="28">
       <label for="genre28" class="checkbox-custom">액션</label>
@@ -396,5 +397,21 @@
     </ul>
   </div>
   {% endif %}
+-->
+/<script>
+  const genreOrCheckbox = document.getElementById('genre_or');
+  const genreOrLabel = document.getElementById('genre_or_label');
+
+  function updateLabel() {
+    genreOrLabel.textContent = genreOrCheckbox.checked ? 'OR' : 'AND';
+  }
+
+  genreOrCheckbox.addEventListener('change', updateLabel);
+
+  // 초기 상태 반영
+  updateLabel();
+
+  // 라벨 클릭 시 체크박스 토글은 자동, 텍스트 업데이트는 change 이벤트가 담당.
+</script>
 </body>
 </html>
