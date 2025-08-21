@@ -1,15 +1,18 @@
 # Core
-Flask >= 3.1.0
-requests >= 2.32.4
-pandas >= 2.3.1
-python-dotenv >= 1.1.1
-webdriver-manager >= 4.0.2
+Flask==3.1.2
+pandas==2.3.1
+PyQt5==5.15.11
+PyQt5_sip==12.17.0
+python-dotenv==1.1.1
+requests==2.32.5
+webdriver_manager==4.0.2
+Werkzeug==3.1.3
+numpy==2.0.2
 
-# Face detection / AWS (optional but recommended for Face Finder)
-boto3 == 1.40.6
-Pillow == 11.3.0
+# Web scraping
+beautifulsoup4==4.13.4
+selenium==4.35.0
 
-selenium >= 4.34.2
-
-# For crawling news
-beautifulsoup4 >= 4.12.0
+# Face detection / AWS
+boto3==1.40.6
+Pillow==11.3.0
