@@ -61,14 +61,15 @@ def nate_news_search(query):
     """
     Selenium과 BeautifulSoup을 이용해 네이트 뉴스 검색 결과를 크롤링하는 함수
     """
+    # 0821 modified / Compatible with Chrome in CLI mode
     options = Options()
-    options.add_argument('--headless') 
-    options.add_argument('--no-sandbox')
-    options.add_argument('--start-maximized')
-    options.add_argument('--disable-dev-shm-usage')
-
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--remote-debugging-port=0")
+    options.add_argument("--user-data-dir=/tmp/selenium_profile")
+    options.add_argument("--window-size=1200,800")
+    driver = webdriver.Chrome(options=options)
     
     news_articles = []
     try:

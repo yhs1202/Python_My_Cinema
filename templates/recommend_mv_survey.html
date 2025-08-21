@@ -205,7 +205,7 @@
       padding: 0.85em 3em;
       font-size: 1.5em;
       font-weight: bold;
-      margin: 7em auto 0 auto;
+      margin: 4em auto 0 auto;
       cursor: pointer;
       box-shadow: 0 4px 12px var(--gold-shadow);
       transition: background 0.3s ease, box-shadow 0.3s ease, transform .05s ease;
@@ -260,17 +260,20 @@
     }
   </style>
 </head>
+
 <body>
   <div class="header-with-left-btn">
     <button class="home-btn" onclick="location.href='{{ url_for('index') }}'">홈으로</button>
     <h1>넷플릭스 산책 끝. 목적지 직행할 영화 한 편... 뭐로 할래?</h1>
   </div>
-
   <!-- 당신이 원하는 영화는 어떤 영화인가요 -->
   <form class="survey" method="POST" action="/recommend_mv">
     <!-- 1단계: 장르 선택 (중복 선택 가능) -->
     <fieldset>
       <legend>1. 장르 선택 (복수 선택 가능) — 직감 ON, 망설임 OFF</legend>
+      <legend>검색 조건 설정<br>
+      <input type="checkbox" id="genre_or" name="genre_or" style="display: none;">
+      <label for="genre_or" id="genre_or_label" class="checkbox-custom" style="cursor: pointer;">OR</label></legend>
 
       <input type="checkbox" id="genre28" name="genres" value="28">
       <label for="genre28" class="checkbox-custom">액션</label>
@@ -394,5 +397,21 @@
     </ul>
   </div>
   {% endif %}
+-->
+/<script>
+  const genreOrCheckbox = document.getElementById('genre_or');
+  const genreOrLabel = document.getElementById('genre_or_label');
+
+  function updateLabel() {
+    genreOrLabel.textContent = genreOrCheckbox.checked ? 'OR' : 'AND';
+  }
+
+  genreOrCheckbox.addEventListener('change', updateLabel);
+
+  // 초기 상태 반영
+  updateLabel();
+
+  // 라벨 클릭 시 체크박스 토글은 자동, 텍스트 업데이트는 change 이벤트가 담당.
+</script>
 </body>
 </html>
