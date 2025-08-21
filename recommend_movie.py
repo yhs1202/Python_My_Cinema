@@ -57,7 +57,7 @@ def build_params(genre_id=None, runtime_type=None, release_year_type=0, rating=N
     }
     return params
 
-def get_movies(genre_id=None, runtime_type=None, release_year_type_list=[0], rating=None, country='ko') -> pd.DataFrame:
+def get_movies(genre_id=None, genre_or=False, runtime_type=None, release_year_type_list=[0], rating=None, country='ko') -> pd.DataFrame:
     """
     설정한 조건의 영화 목록을 페이지 범위로 가져오는 함수
     """
@@ -75,6 +75,9 @@ def get_movies(genre_id=None, runtime_type=None, release_year_type_list=[0], rat
     # build_release_date_filter will return empty dict (No constraints)
     if len(release_year_type_list) == 4:    
         release_year_type_list = [0]
+
+    # genre_id AND OR Logic
+    genre_id = genre_id.replace(",", "|") if genre_or else genre_id
 
     for release_year_type in release_year_type_list:
         for country in countries:
@@ -109,15 +112,6 @@ def get_movies(genre_id=None, runtime_type=None, release_year_type_list=[0], rat
     if len(all_movies) > 21:
         all_movies = random.sample(all_movies, 21)
     
-    return pd.DataFrame(all_movies)
-
-
-                #all_movies.extend(movies)
-
-    # 최대 21개 무작위 추출
-    if len(all_movies) > 21:
-        all_movies = random.sample(all_movies, 21)
-
     return pd.DataFrame(all_movies)
 
 
@@ -204,6 +198,7 @@ def get_recommendations():
     """
     if request.method == 'POST':
         genres      = request.form.getlist('genres')
+        genre_or    = request.form.get('genre_or')
         # adult       = request.form.get('adult')
         runtime     = request.form.get('runtime')
         year_types  = request.form.getlist('release_year_range')
@@ -234,6 +229,7 @@ def get_recommendations():
         try:
             recommended_movies = get_data(get_movies(
                 genre_id        = ",".join(genres) if genres else None,
+                genre_or        = True if genre_or == 'on' else False,
                 runtime_type    = int(runtime) if runtime else 1,
                 release_year_type_list = [int(x) for x in year_types] if year_types else [0],
                 rating          = min_rating if min_rating else 0,
@@ -255,7 +251,6 @@ def get_recommendations():
 
 
 if __name__ == "__main__":
-    pass
     # for test
     # while True:
     #     print(genre_dict)
@@ -266,3 +261,4 @@ if __name__ == "__main__":
     #     input_genre = input("장르 번호 입력>> ")
     #     recommended_movies = get_movies(genre_id=input_genre, runtime_type=int(input_runtime), rating=5, country=input_lang)
     #     recommended_movies = get_data(recommended_movies)
+    pass
