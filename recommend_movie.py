@@ -66,12 +66,16 @@ def get_movies(genre_id=None, runtime_type=None, release_year_type_list=[0], rat
     page_range = 5
 
     all_movies = []
+    ###################
+    seen_ids = set() # 중복 방지용 변수 설정
+    ###################
     # multiple countries processing
     countries = country.split(",") if country else ['ko']
     # if all year types are selected,
     # build_release_date_filter will return empty dict (No constraints)
     if len(release_year_type_list) == 4:    
-        release_year_type_list = [0]    
+        release_year_type_list = [0]
+
     for release_year_type in release_year_type_list:
         for country in countries:
             for page_num in range(1, page_range + 1):    
@@ -87,10 +91,30 @@ def get_movies(genre_id=None, runtime_type=None, release_year_type_list=[0], rat
                 if not movies:
                     print(f"{page_num} 페이지에서 영화를 찾을 수 없습니다.")
                     break
+                # 중복 제거 : id 기준으로 중복되는 것 제거
+                for m in movies:
+                    mid = m.get('id')
+                    if mid is None:
+                        continue
+                    if mid not in seen_ids:
+                        seen_ids.add(mid)
+                        all_movies.append(m)
+    # 예비 중복 방지 코드 : 혹시 중복이 섞이더라도 id 기준으로 한번 더 고유화
+    unique_by_id = {}
+    for m in all_movies:
+        unique_by_id[m['id']] = m
+    all_movies = list(unique_by_id.values())
 
-                all_movies.extend(movies)
+    #
+    if len(all_movies) > 21:
+        all_movies = random.sample(all_movies, 21)
+    
+    return pd.DataFrame(all_movies)
 
-    # Randomly select 21 movies if more than 21 are available
+
+                #all_movies.extend(movies)
+
+    # 최대 21개 무작위 추출
     if len(all_movies) > 21:
         all_movies = random.sample(all_movies, 21)
 
