@@ -2,6 +2,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
@@ -11,13 +12,21 @@ def get_film_festivals_with_selenium():
     
     # 웹 드라이버 설정 (ChromeDriver를 자동으로 설치하고 관리)
     try:
+        # Chrome in CLI mode
+        options = Options()
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--start-maximized")
+        options.add_argument("--disable-dev-shm-usage")
+
         service = ChromeService(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service)
+        driver = webdriver.Chrome(service=service, options=options)
     except Exception as e:
         print(f"웹 드라이버 설정 중 오류 발생: {e}")
         return []
 
     url = "https://www.kobis.or.kr/kobis/business/mast/fest/searchUserFestInfoList.do"
+    driver.maximize_window()  # modified in 0821_11xx
     driver.get(url)
     
     # 크롤링할 최대 페이지 수 (예: 10페이지)

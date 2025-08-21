@@ -3,7 +3,6 @@
 import boto3
 import requests
 import hashlib
-import os
 
 # --- 추가된 라이브러리 ---
 from bs4 import BeautifulSoup
@@ -15,6 +14,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 
@@ -61,13 +61,11 @@ def nate_news_search(query):
     """
     Selenium과 BeautifulSoup을 이용해 네이트 뉴스 검색 결과를 크롤링하는 함수
     """
-    options = webdriver.ChromeOptions()
-    options.add_argument('--start-maximized')
+    options = Options()
+    options.add_argument('--headless') 
     options.add_argument('--no-sandbox')
+    options.add_argument('--start-maximized')
     options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--disable-gpu')
-    # 백그라운드에서 실행하려면 아래 옵션을 추가하세요.
-    # options.add_argument('--headless') 
 
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
