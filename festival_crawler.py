@@ -12,15 +12,16 @@ def get_film_festivals_with_selenium():
     
     # 웹 드라이버 설정 (ChromeDriver를 자동으로 설치하고 관리)
     try:
-        # Chrome in CLI mode
+        # 0821 modified / Compatible with Chrome in CLI mode
         options = Options()
-        options.add_argument("--headless")
+        options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
-        options.add_argument("--start-maximized")
         options.add_argument("--disable-dev-shm-usage")
-
-        service = ChromeService(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=options)
+        options.add_argument("--remote-debugging-port=0")
+        options.add_argument("--user-data-dir=/tmp/selenium_profile")
+        options.add_argument("--window-size=1200,800")
+        driver = webdriver.Chrome(options=options)
+        
     except Exception as e:
         print(f"웹 드라이버 설정 중 오류 발생: {e}")
         return []
@@ -30,7 +31,7 @@ def get_film_festivals_with_selenium():
     driver.get(url)
     
     # 크롤링할 최대 페이지 수 (예: 10페이지)
-    max_pages = 10 
+    max_pages = 2 
     
     for page_num in range(1, max_pages + 1):
         try:
