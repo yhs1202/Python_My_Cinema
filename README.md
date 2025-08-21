@@ -18,6 +18,7 @@ A Flask-based mini web app that explores movies with TMDb API and face detection
 
 ## Features Overview
 
+
 ### 1) 얼굴찾기 (Face Detection)
 - 업로드한 이미지에서 얼굴 탐지 및 유명인 인식 결과를 반환합니다.
 - 주요 모듈: `aws.py` (Amazon Rekognition 호출)
