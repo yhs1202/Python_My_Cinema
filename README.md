@@ -1,14 +1,16 @@
 # Python_My_Cinema
----
-Flask와 TMDb API, AWS Rekognition을 활용한 나만의 시네마 웹 애플리케이션입니다.  
-웹 UI에서 **얼굴찾기**, **영화추천**, **배우검색**, **미니게임**의 4가지 기능을 제공합니다.
 
-A Flask web application that integrates the TMDb API and optionally AWS Rekognition.
-It provides 4 main features via a web UI:
-- Face Detection
+Flask와 TMDb API, AWS Rekognition을 활용한 나만의 시네마 웹 애플리케이션입니다.
+
+웹 UI에서 **배우 얼굴 찾기**, **영화추천**, **배우검색**, **미니게임, 영화제 정보**의 5가지 기능을 제공합니다.
+
+A Flask-based mini web app that explores movies with TMDb API and face detection AWS Rekognition. It provides 5 main features via a web UI:
+
+- Actor Face Detection
 - Movie Recommendation
 - Actor Search
 - Mini Game
+- Film Festival Information
 
 ![0](/static/readme_img/0_main_example.png)
 
