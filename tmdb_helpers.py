@@ -5,6 +5,8 @@ from flask import request, jsonify
 from aws import recognize_celebrities
 from werkzeug.utils import secure_filename
 from typing import Optional, List, Dict, Any
+from PIL import Image
+import datetime
 
 # TMDB API 키와 기본 URL 설정
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
@@ -53,7 +55,6 @@ def tmdb_person_external_ids(person_id: int):
 def _normalize_to_rgb_jpeg(path: str) -> str:
     """업로드 이미지를 RGB JPEG로 정규화 (HEIC/CMYK 대비). 실패하면 원본 경로 반환."""
     try:
-        from PIL import Image
         out_path = path.split(".")[0] + "_processing.jpg"
         with Image.open(path) as im:
             if im.mode != "RGB":
@@ -76,18 +77,19 @@ def process_celeb_face():
 
     # 2) 저장 + 정규화
     os.makedirs("static", exist_ok=True)
-    file1_filename = secure_filename(file1.filename)
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    file1_filename = timestamp + secure_filename(file1.filename)
     save_path = os.path.join("static", file1_filename)
-    # file1.save(save_path)
-    save_path = _normalize_to_rgb_jpeg(save_path)  # 실패 시 원본 경로 반환
+    file1.save(save_path)
+    save_path_rgb = _normalize_to_rgb_jpeg(save_path)  # 실패 시 원본 경로 반환
 
     # 3) AWS Rekognition 유명인 인식
     try:
         celeb_info_from_aws = recognize_celebrities(save_path)
-
         # remove the saved file after processing
         if os.path.exists(save_path):
             os.remove(save_path)
+            os.remove(save_path_rgb)
 
     except Exception as e:
         return jsonify({"result": "error", "message": f"recognize_celebrities crashed: {e}"}), 500

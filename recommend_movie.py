@@ -57,8 +57,17 @@ def build_params(genre_id=None, runtime_type=None, release_year_type=0, rating=N
     }
     return params
 
-def get_movies(genre_id=None, genre_or=False, runtime_type=None, release_year_type_list=[0], rating=None, country='ko') -> pd.DataFrame:
+def get_movies(
+        genre_id=None,
+        genre_or=False, 
+        runtime_type=None, 
+        release_year_type_list=[0], 
+        rating=None, 
+        country='ko') -> pd.DataFrame:
+    
     """
+    paras: genre_id, genre_or, runtime_type, release_year_type_list, rating, country
+    :return: DataFrame of recommended movies
     설정한 조건의 영화 목록을 페이지 범위로 가져오는 함수
     """
 
