@@ -6,6 +6,7 @@ from aws import recognize_celebrities
 from werkzeug.utils import secure_filename
 from typing import Optional, List, Dict, Any
 from PIL import Image
+import datetime
 
 # TMDB API 키와 기본 URL 설정
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
@@ -76,7 +77,8 @@ def process_celeb_face():
 
     # 2) 저장 + 정규화
     os.makedirs("static", exist_ok=True)
-    file1_filename = secure_filename(file1.filename)
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    file1_filename = timestamp + secure_filename(file1.filename)
     save_path = os.path.join("static", file1_filename)
     file1.save(save_path)
     save_path_rgb = _normalize_to_rgb_jpeg(save_path)  # 실패 시 원본 경로 반환
