@@ -13,9 +13,12 @@ A Flask-based mini web app that explores movies with TMDb API and face detection
 
 ![0](/static/readme_img/0_main_example.png)
 
+## Attribution
+This product uses the TMDB API but is not endorsed or certified by TMDB.  
+TMDB © and TMDB logo are trademarks of TMDB. See TMDB Branding & Attribution guidelines.
+
 ## Features Overview
 
----
 
 **1) 유명인(배우) 얼굴 찾기 (Actor Face Detection)**
 
@@ -59,7 +62,6 @@ A Flask-based mini web app that explores movies with TMDb API and face detection
 
 ## **Project Structure**
 
----
 
 ```
 Python_My_Cinema/
@@ -80,7 +82,6 @@ Python_My_Cinema/
 
 ## Run Application
 
----
 
 **1) Requirements**
 
@@ -124,7 +125,6 @@ python3 app.py
 
 ## **File Responsibilities & Dependencies**
 
----
 
 **`app.py`**
 
@@ -181,6 +181,9 @@ python3 app.py
 - **Dependencies**: selenium, webdriver-manager, beautifulsoup4
 
 
-## TODO
 
----
+## TODO
+배포/운영 가이드 필요
+
+## Licence
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
