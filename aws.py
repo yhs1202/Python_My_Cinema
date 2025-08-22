@@ -16,7 +16,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.common.exceptions import WebDriverException, InvalidSessionIdException, TimeoutException, NoSuchElementException
 import time
+
 
 def get_wikidata_image(wikidata_id):
     """
@@ -55,21 +57,38 @@ def get_wikidata_image(wikidata_id):
         print(f"No image or claims found for Wikidata ID: {wikidata_id}")
         return None
 
+def build_chrome_options():
+    """Chrome 옵션을 설정하는 함수"""
+    options = Options()
+    options.add_argument("--headless=new")  # 새로운 headless 모드 사용
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--remote-debugging-port=0")
+    options.add_argument("--user-data-dir=/tmp/selenium_profile")
+    options.add_argument("--window-size=1200,800")
+    options.add_argument("--disable-gpu")  # GPU 가속 비활성화
+    return options
+
+def build_webdriver():
+    """WebDriver를 설정하는 함수"""
+    options = build_chrome_options()
+    try:
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        return driver
+    except WebDriverException as e:
+        print(f"WebDriver 초기화 실패: {e}")
+        return None
+    
 # ----- 기존 naver_news_search 함수를 아래 nate_news_search 함수로 대체합니다 -----
 
 def nate_news_search(query):
     """
     Selenium과 BeautifulSoup을 이용해 네이트 뉴스 검색 결과를 크롤링하는 함수
     """
-    # 0821 modified / Compatible with Chrome in CLI mode
-    options = Options()
-    options.add_argument("--headless=new")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--remote-debugging-port=0")
-    options.add_argument("--user-data-dir=/tmp/selenium_profile")
-    options.add_argument("--window-size=1200,800")
-    driver = webdriver.Chrome(options=options)
+    try:
+        driver = webdriver.Chrome(options=build_chrome_options())
+    except Exception as e:
+        print(f"Chrome 드라이버 구성중 오류 발생: {e}")
     
     news_articles = []
     try:
