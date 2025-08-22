@@ -152,6 +152,27 @@
         .info-section strong {
             color: #d4af37;
         }
+
+
+        /* GitHub 링크 버튼 */
+        .repo-link {
+        display: inline-block;
+        margin: 6px auto 18px;
+        padding: 8px 14px;
+        color: #d4af37;
+        text-decoration: none;
+        border: 1px solid #d4af37;
+        border-radius: 8px;
+        font-weight: 700;
+        box-shadow: 0 0 6px rgba(212,175,55,.35);
+        transition: all .2s ease;
+        }
+        .repo-link:hover {
+        background: #d4af37;
+        color: #0d0d1a;
+        box-shadow: 0 0 12px rgba(212,175,55,.8);
+        }
+
     </style>
 </head>
 <body>
@@ -201,6 +222,7 @@
             My Cinema는 여러분의 영화 경험을 한 차원 높여줄 개인 맞춤형 영화 플랫폼입니다.<br>
             단순한 정보 제공을 넘어, 영화와 더 깊이 교감할 수 있는 특별한 기능들을 만나보세요.
         </p>
+        
         <ul>
             <li>
                 <strong>얼굴 찾기:</strong> 궁금한 인물의 사진을 업로드하여 어떤 배우인지 즉시 확인하고, 상세 프로필과 최신 소식까지 한눈에 볼 수 있습니다.
@@ -217,6 +239,14 @@
             <li>
                 <strong>영화제 정보:</strong> 영화제들을 보여주고, 공식 홈페이지로 바로 이동할 수 있습니다.
             </li>
+            <br>
+            <div style="text-align: center;">
+            <a class="repo-link"
+                href="https://github.com/yhs1202/Python_My_Cinema"
+                target="_blank" rel="noopener">
+                GitHub 저장소 바로가기 ↗
+            </a>
+            </div>
         </ul>
     </div>
 
