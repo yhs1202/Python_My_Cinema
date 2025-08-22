@@ -43,7 +43,7 @@ A Flask-based mini web app that explores movies with TMDb API and face detection
 
 - TMDb 데이터로 간단한 퀴즈/맞히기 게임을 구성합니다.
 - 주요 모듈: `movie_game_app.py`, `game_helpers.py`
-- Game1: 포스터만 보고 개봉 순서로 맞추기 (1 to 9 Game)
+- Game1: 포스터만 보고 개봉 순서 맞추기 (1 to 9 Game)
 - Game2: 감독 또는 배우 검색 후 관련된 작품 맞추기, 다 맞춘 후에는 상세 페이지로 로딩됩니다.
 
   ![4](/static/readme_img/4_game_example.gif)
@@ -169,7 +169,7 @@ python3 app.py
 
 **`game_helpers.py`**
 
-- 두 가지 게임 모드(순서 맞추기, 관련 영화 찾기)의 백엔드 로직 처리
+- 두 가지 게임 모드(개봉 순서 맞추기, 관련 영화 찾기)의 백엔드 로직 처리
 - 연령 등급 필터링(대체 호출 포함) 및 배우 국적 분석으로 게임 데이터 생성
 - Flask 세션을 이용한 게임 정답 저장 및 관리
 - **Dependencies**: Flask, python-dotenv
