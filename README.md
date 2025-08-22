@@ -137,7 +137,7 @@ python3 app.py
 - `tmdb_get` 을 통한 TMDB API 요청 기능 수행
 - API 응답을(배우 필모그래피 등) 표시용 데이터로 가공
 - 이미지 분석부터 정보 조회까지 유명인 인식 기능의 전체 흐름 제어
-- **Dependencies**: requests, Flask, werkzeug
+- **Dependencies**: requests, Flask, werkzeug, Pillow
 
 **`search_actor.py`**
 
@@ -169,7 +169,7 @@ python3 app.py
 
 **`game_helpers.py`**
 
-- 두 가지 게임 모드(순서 맞추기, 진짜/가짜 찾기)의 백엔드 로직 처리
+- 두 가지 게임 모드(순서 맞추기, 관련 영화 찾기)의 백엔드 로직 처리
 - 연령 등급 필터링(대체 호출 포함) 및 배우 국적 분석으로 게임 데이터 생성
 - Flask 세션을 이용한 게임 정답 저장 및 관리
 - **Dependencies**: Flask, python-dotenv
