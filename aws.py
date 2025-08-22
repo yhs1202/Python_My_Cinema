@@ -85,13 +85,11 @@ def nate_news_search(query):
     """
     Selenium과 BeautifulSoup을 이용해 네이트 뉴스 검색 결과를 크롤링하는 함수
     """
+    driver = None
     try:
         driver = webdriver.Chrome(options=build_chrome_options())
-    except Exception as e:
-        print(f"Chrome 드라이버 구성중 오류 발생: {e}")
     
-    news_articles = []
-    try:
+        news_articles = []
         driver.get("https://news.nate.com/")
         
         # 검색창에 키워드 입력 및 검색 실행
@@ -140,7 +138,8 @@ def nate_news_search(query):
     except Exception as e:
         print(f"네이트 뉴스 크롤링 중 오류 발생: {e}")
     finally:
-        driver.quit()
+        if driver:
+            driver.quit()
         
     return news_articles
 
