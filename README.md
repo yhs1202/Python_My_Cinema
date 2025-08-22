@@ -10,6 +10,7 @@ A Flask-based mini web app that explores movies with TMDb API and face detection
 - Mini Game
 - Film Festival Information
 
+# ![0](/static/readme_img/0_main_example.png)
 
 ## Features Overview
 
@@ -17,9 +18,11 @@ A Flask-based mini web app that explores movies with TMDb API and face detection
 
 **1) 유명인(배우) 얼굴 찾기 (Actor Face Detection)**
 
-- 업로드한 이미지에서 얼굴 탐지 및 유명인(배우) 인식 결과를 반환합니다.
+- 업로드한 이미지 또는 카메라 입력을 받아 얼굴 탐지 및 유명인(배우) 인식 결과를 반환합니다.
 - 주요 모듈: `aws.py` (Amazon Rekognition 호출)
 - 출력 예시: 유명인 인식 결과 (이름, 성별, 직업, 생년월일, 출생지, Wikidata, IMDB, SNS Links, 소개) 및 최신 뉴스
+
+# >> 
 
 **2) 영화추천 (Movie Recommendation)**
 
@@ -27,10 +30,14 @@ A Flask-based mini web app that explores movies with TMDb API and face detection
 - 주요 모듈: `recommend_movie.py` 여러 조건(장르, 언어, 상영시간, 개봉년도, 평점 등) 에 따라 영화 데이터 수집 및 가공, 화면 출력
 - 출력 예시: 사용자가 설정한 조건을 바탕으로 검색된 영화들의 정보를 포스터와 함께 화면에 출력
 
+# >>
+
 **3) 배우검색 (Actor Search)**
 
 - 배우명으로 검색하여 기본 프로필 및 대표작(필모그래피)을 보여줍니다.
 - 주요 모듈: `search_actor.py`, `tmdb_helpers.py`
+
+# >>
 
 **4) 미니게임 (Mini Game)**
 
@@ -39,11 +46,14 @@ A Flask-based mini web app that explores movies with TMDb API and face detection
 - Game1: 포스터만 보고 개봉 순서로 맞추기 (1 to 9 Game)
 - Game2: 감독 또는 배우 검색 후 관련된 작품 맞추기, 다 맞춘 후에는 상세 페이지로 로딩됩니다.
 
+# >>
+
 **5) 영화제 (Film Festival)**
 
 - kobis 사이트를 통해 영화제 정보를 제공합니다.
 - 주요 모듈: `festival_crawler`
 
+# >>
 
 
 ## **Project Structure**
